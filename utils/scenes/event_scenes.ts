@@ -633,7 +633,7 @@ export const eventScenes: Record<string, Scene> = {
       doctor:
         "这是失温三期的典型症状！体温调节中枢已经混乱。如果这时候脱衣服（反常脱衣），必死无疑。必须立刻停止失热！",
     },
-    bg: "bg_storm",
+    bg: "evt_hypothermia",
     choices: [
       {
         text: "立刻找避风处生火取暖",
@@ -681,7 +681,7 @@ export const eventScenes: Record<string, Scene> = {
   evt_phone_dead: {
     id: "evt_phone_dead",
     text: "你想掏出手机确认轨迹，却发现屏幕漆黑一片。低温让电池瞬间掉电关机。充电宝也冻成了冰砖。现在的你，失去了现代科技的庇护，只能靠路标和直觉了。",
-    bg: "loc_ridge",
+    bg: "evt_phone_frozen", // [UPDATED]
     choices: [
       {
         text: "把手机放在怀里贴身捂热",
@@ -791,7 +791,7 @@ export const eventScenes: Record<string, Scene> = {
     roleText: {
       sanity: "你的理智值很低，那个招手的人影看起来越来越真实...",
     },
-    bg: "fog_halluncination", // Generic fog or specific
+    bg: "fog_halluncination", // [UPDATED]
     choices: [
       {
         text: "相信眼睛，走向帐篷",
@@ -822,7 +822,7 @@ export const eventScenes: Record<string, Scene> = {
   evt_rescue_team: {
     id: "evt_rescue_team",
     text: "一阵喧闹声打破了沉寂。你看到一队全副武装的救援人员正抬着担架艰难前行。领队看到你，严肃地问道：“前面情况怎么样？我们正在搜救一名失联者。你如果状态不好，建议跟我们一起下撤。”",
-    bg: "loc_camp",
+    bg: "evt_rescue_hiker", // [UPDATED] fallback to existing image
     choices: [
       {
         text: "接受建议，跟随下撤 (结束游戏)",
@@ -975,7 +975,7 @@ export const eventScenes: Record<string, Scene> = {
   evt_takin_herd: {
     id: "evt_takin_herd",
     text: "在这个季节，羚牛正处于发情期，极具攻击性。你前方的小路上，赫然出现了一群金毛扭角羚。领头的公牛正死死盯着你，喷着粗气。救援队都曾被它们逼退！",
-    bg: "loc_forest",
+    bg: "evt_takin_herd",
     choices: [
       {
         text: "大声喊叫驱赶 (极度危险)",
@@ -1093,7 +1093,7 @@ export const eventScenes: Record<string, Scene> = {
   evt_mani_pile: {
     id: "evt_mani_pile",
     text: "在荒凉的梁顶，你发现了一堆用石头垒起的“玛尼堆”。这是前人留下的路标，也是一种祈福。在玛尼堆旁边，还立着一块简陋的石碑，刻着一个年轻人的名字和日期。",
-    bg: "loc_stone_sea",
+    bg: "evt_mani_pile",
     choices: [
       {
         text: "添一块石头，默哀致敬",
@@ -1128,7 +1128,7 @@ export const eventScenes: Record<string, Scene> = {
   evt_sunset_decision: {
     id: "evt_sunset_decision",
     text: "太阳即将落山，余晖将云海染成了血红色。前方还有一段艰难的爬升才能到达理想营地，而这里有一块避风的巨石勉强可以扎营。",
-    bg: "bg_sunset", // need asset or use night
+    bg: "evt_sunset_cliff",
     choices: [
       {
         text: "贪赶路，趁着余晖冲刺",
@@ -1160,7 +1160,7 @@ export const eventScenes: Record<string, Scene> = {
   evt_cliff_dilemma: {
     id: "evt_cliff_dilemma",
     text: "原本的路迹在一处断崖前消失了。这一段岩壁大概有3米高，看起来能爬下去，但下方是深不见底的沟壑。往回绕路的话，至少要多走2小时。",
-    bg: "loc_cliff",
+    bg: "evt_sunset_cliff",
     choices: [
       {
         text: "相信身手，徒手攀爬",

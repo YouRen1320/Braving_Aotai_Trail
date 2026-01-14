@@ -1310,7 +1310,7 @@ export const mapScenes: Record<string, Scene> = {
   node_sq_poet_start: {
     id: "node_sq_poet_start",
     text: "在白起庙的残垣断壁旁，你发现了一本压在石头下的防水笔记本。封面上写着：“给未来的你”。笔记本已经很旧了，但字迹依然清晰。",
-    bg: "loc_stone_sea",
+    bg: "evt_notebook",
     choices: [
       {
         text: "打开阅读",
@@ -1325,7 +1325,7 @@ export const mapScenes: Record<string, Scene> = {
   node_sq_poet_read: {
     id: "node_sq_poet_read",
     text: "“山不是要征服的对象，而是灵魂的归宿。如果你看到了这行字，说明你也在寻找答案。不要为了赶路而赶路，停下来，听听风的声音。”\n读完这段话，你感到内心一阵平静。笔记本里夹着一片干枯的格桑花。\n(状态反馈：理智 +20, 获得特殊物品：格桑花)",
-    bg: "loc_stone_sea",
+    bg: "evt_notebook",
     choices: [
       {
         text: "收起笔记本和花，继续上路",
@@ -1391,7 +1391,7 @@ export const mapScenes: Record<string, Scene> = {
   node_sq_missing_trace: {
     id: "node_sq_missing_trace",
     text: "在麦秸岭的乱石堆中，你发现了一只散落的登山鞋，鞋带系得很紧，像是被硬生生蹭掉的。旁边还有半管冻硬的牙膏，被咬得稀烂。这似乎是某个极度饥饿的迷路者留下的。",
-    bg: "loc_stone_sea",
+    bg: "evt_shoe_trace",
     choices: [
       {
         text: "顺着痕迹寻找",
