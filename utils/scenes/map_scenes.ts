@@ -27,7 +27,7 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "徒步前往登山口",
         target: "node_hike_feedback",
-        cost: { hunger: 2, hp: 0 },
+        cost: { hunger: 5, hp: 0 },
       },
     ],
   },
@@ -82,7 +82,7 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "不管了，加快脚步进山",
         target: "node_village_road_hike_feedback",
-        cost: { hunger: 2 },
+        cost: { hunger: 5 },
       },
       {
         text: "还是稳妥点，最后检查一遍背包",
@@ -126,7 +126,7 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "踩着石头跳过去",
         target: "node_river_jump_feedback",
-        cost: { hunger: 3, sanity: 2 },
+        cost: { hunger: 5, sanity: 3 },
       },
       {
         text: "脱鞋涉水",
@@ -192,13 +192,13 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "保持节奏爬升",
         target: "node_forest_entry_climb_feedback",
-        cost: { hunger: 5, hp: 2 },
+        cost: { hunger: 8, hp: 3 },
       },
       {
         text: "回头看一眼山下的村庄",
         action: "look_back",
         target: "node_forest_entry_look_feedback",
-        cost: { hunger: 3, sanity: 5 },
+        cost: { hunger: 5, sanity: 8 },
       },
     ],
   },
@@ -244,7 +244,7 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "咬紧牙关，这才刚开始！",
         target: "node_forest_climb_push_feedback",
-        cost: { hunger: 15, hp: 5 },
+        cost: { hunger: 20, hp: 8 },
       },
       {
         text: "有点顶不住，喝口水缓缓",
@@ -304,12 +304,12 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "手脚并用攀爬",
         target: "node_penjing_ascent_climb_feedback",
-        cost: { hunger: 20, hp: 5 },
+        cost: { hunger: 25, hp: 8 },
       },
       {
         text: "使用登山杖支撑",
         target: "node_penjing_ascent_stick_feedback",
-        cost: { hunger: 15 },
+        cost: { hunger: 18 },
       },
     ],
   },
@@ -358,12 +358,12 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "别浪费时间，下沟找水",
         target: "node_penjing_gully",
-        cost: { hunger: 5 },
+        cost: { hunger: 8 },
       },
       {
         text: "信号算个屁，继续赶路",
         target: "node_penjing_hike_feedback",
-        cost: { hunger: 15, hp: 5 },
+        cost: { hunger: 20, hp: 8 },
       },
     ],
   },
@@ -401,7 +401,7 @@ export const mapScenes: Record<string, Scene> = {
         text: "搜刮物资并返回值路",
         action: "loot_supplies",
         target: "node_penjing_return_feedback",
-        cost: { hunger: 10, hp: 5 },
+        cost: { hunger: 15, hp: 8 },
       },
     ],
   },
@@ -432,7 +432,12 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "这片石海我熟，走起",
         target: "node_baiqi_middle",
-        cost: { hunger: 5 },
+        cost: { hunger: 8 },
+      },
+      // [Side Quest Hook]
+      {
+        text: "注意到了角落里的笔记本",
+        target: "node_sq_poet_start",
       },
     ],
   },
@@ -445,12 +450,12 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "保持节奏前进",
         target: "node_baiqi_pace_feedback",
-        cost: { hunger: 5, hp: 2 },
+        cost: { hunger: 8, hp: 3 },
       },
       {
         text: "加速奔向导航架",
         target: "node_baiqi_rush_feedback",
-        cost: { hunger: 10, hp: 1 },
+        cost: { hunger: 15, hp: 3 },
       },
     ],
   },
@@ -532,12 +537,17 @@ export const mapScenes: Record<string, Scene> = {
       {
         text: "跟着羚牛的脚印右切（走兽道）",
         target: "node_maijie_path_feedback",
-        cost: { hunger: 5 },
+        cost: { hunger: 8 },
       },
       {
         text: "我是硬汉，直接翻石海！",
         target: "node_maijie_climb_feedback",
-        cost: { hunger: 20, hp: 15, sanity: 5 },
+        cost: { hunger: 25, hp: 18, sanity: 8 },
+      },
+      // [Side Quest Hook]
+      {
+        text: "留意到地上的登山鞋和牙膏",
+        target: "node_sq_missing_trace",
       },
     ],
   },
@@ -1294,6 +1304,129 @@ export const mapScenes: Record<string, Scene> = {
         target: "end_game_cleared",
       },
     ],
+  },
+
+  // --- Side Quest: The Poet's Legacy (Based on 'Star Bud' case) ---
+  node_sq_poet_start: {
+    id: "node_sq_poet_start",
+    text: "在白起庙的残垣断壁旁，你发现了一本压在石头下的防水笔记本。封面上写着：“给未来的你”。笔记本已经很旧了，但字迹依然清晰。",
+    bg: "loc_stone_sea",
+    choices: [
+      {
+        text: "打开阅读",
+        target: "node_sq_poet_read",
+      },
+      {
+        text: "放回原处，不打扰",
+        target: "node_baiqi_middle",
+      },
+    ],
+  },
+  node_sq_poet_read: {
+    id: "node_sq_poet_read",
+    text: "“山不是要征服的对象，而是灵魂的归宿。如果你看到了这行字，说明你也在寻找答案。不要为了赶路而赶路，停下来，听听风的声音。”\n读完这段话，你感到内心一阵平静。笔记本里夹着一片干枯的格桑花。\n(状态反馈：理智 +20, 获得特殊物品：格桑花)",
+    bg: "loc_stone_sea",
+    choices: [
+      {
+        text: "收起笔记本和花，继续上路",
+        target: "node_baiqi_middle",
+        action: "gain_item_flower", // Moved action to choice
+      },
+    ],
+  },
+
+  // --- Side Quest: Rescue Mission (Continued from evt_sos_signal) ---
+  node_sq_rescue_carry: {
+    id: "node_sq_rescue_carry",
+    text: "你决定背这名受伤的驴友下山。他体重不轻，而且左腿骨折。这意味着你将消耗双倍的体能，并且移动速度会大幅降低。这不仅是救人，更是在赌命。",
+    bg: "loc_cliff",
+    choices: [
+      {
+        text: "背起他，向最近的下撤点进发",
+        cost: { hunger: 30, hp: 10 },
+        target: "node_sq_rescue_struggle",
+      },
+      {
+        text: "实在背不动，只能先去叫人",
+        target: "node_sq_rescue_leave",
+      },
+    ],
+  },
+  node_sq_rescue_struggle: {
+    id: "node_sq_rescue_struggle",
+    text: "每走一步，你的肺都在燃烧。汗水流进眼睛里，刺痛无比。受伤的驴友在你背上不断呻吟，说着胡话。天快黑了，你们离下撤点还有3公里。",
+    bg: "loc_forest",
+    choices: [
+      {
+        text: "咬碎牙关，透支体能冲刺",
+        cost: { hp: 30, hunger: 20 },
+        target: "node_sq_rescue_success",
+      },
+      {
+        text: "体力透支，两人一起摔倒",
+        target: "node_sq_rescue_fail",
+      },
+    ],
+  },
+  node_sq_rescue_success: {
+    id: "node_sq_rescue_success",
+    text: "奇迹发生了。你在天黑前把他背到了接应点，正好遇到了巡逻的护林员。你虽然累瘫在地上，但看着他被抬上担架，心中涌起一股巨大的成就感。\n(状态反馈：获得“救命恩人”称号，解锁特殊结局)",
+    bg: "loc_village",
+    choices: [{ text: "我也需要急救...", target: "end_rescue" }],
+  },
+  node_sq_rescue_fail: {
+    id: "node_sq_rescue_fail",
+    text: "你实在太累了，脚下一软，两人一起滚下了山坡。你头部受到重创，意识逐渐模糊...",
+    bg: "loc_cliff",
+    choices: [{ text: "尽力了...", target: "dead_001" }],
+  },
+  node_sq_rescue_leave: {
+    id: "node_sq_rescue_leave",
+    text: "你留下了所有的食物和水，并标记了坐标。虽然理智告诉你这是最正确的选择，但那个渴望生存的眼神让你终身难忘。",
+    bg: "loc_cliff",
+    choices: [{ text: "带着沉重的心情离开", target: "resume" }],
+  },
+
+  // --- Side Quest: Missing Teammate (Based on 'Sun Liang' lost context) ---
+  node_sq_missing_trace: {
+    id: "node_sq_missing_trace",
+    text: "在麦秸岭的乱石堆中，你发现了一只散落的登山鞋，鞋带系得很紧，像是被硬生生蹭掉的。旁边还有半管冻硬的牙膏，被咬得稀烂。这似乎是某个极度饥饿的迷路者留下的。",
+    bg: "loc_stone_sea",
+    choices: [
+      {
+        text: "顺着痕迹寻找",
+        target: "node_sq_missing_find",
+        cost: { hunger: 5 },
+      },
+      {
+        text: "太危险了，那是无人区深处",
+        target: "node_knife_ridge",
+      },
+    ],
+  },
+  node_sq_missing_find: {
+    id: "node_sq_missing_find",
+    text: "你在一个避风的石窝里发现了一个蜷缩的人影。是个年轻的小伙子，已经神志不清，嘴里还在嚼着牙膏皮。他就是那个失联了10天的“风信子”！",
+    bg: "evt_abandoned_tent",
+    choices: [
+      {
+        text: "喂他热水，并联系救援",
+        cost: { hunger: 5 }, // Modified to remove invalid 'water' cost
+        target: "node_sq_missing_save",
+      },
+    ],
+  },
+  node_sq_missing_save: {
+    id: "node_sq_missing_save",
+    text: "你用保温毯把他裹住，并用最后一点电量拨通了救援电话。看着他眼角流下的泪水，你明白了生命的顽强。\n(状态反馈：理智回复满)",
+    bg: "loc_camp",
+    choices: [
+      {
+        text: "等待救援抵达",
+        target: "end_rescue",
+        action: "restore_sanity_full",
+      },
+    ], // Moved action to choice
   },
 
   end_game_cleared: {

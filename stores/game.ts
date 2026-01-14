@@ -477,8 +477,8 @@ export const useGameStore = defineStore("game", {
       }
       if (this.currentLoad > this.status.maxLoad) {
         const overload = this.currentLoad - this.status.maxLoad;
-        // 10% extra cost per kg overweight
-        hungerCost *= 1 + overload * 0.1;
+        // 15% extra cost per kg overweight (increased from 10%)
+        hungerCost *= 1 + overload * 0.15;
       }
 
       // [TRAIT] High Metabolism (Athlete)
@@ -502,7 +502,7 @@ export const useGameStore = defineStore("game", {
         hpCost += leak;
       }
       if (this.status.hunger <= 0) {
-        hpCost += 10;
+        hpCost += 15;
         this.showNotification("饥饿难耐，生命流失！", "negative");
       }
 
@@ -513,15 +513,13 @@ export const useGameStore = defineStore("game", {
         // Falling is physical. Let's keep physical risk but maybe lower it?
 
         if ((cost.hp || 0) > 0 || (cost.hunger || 0) > 0) {
-          if (Math.random() < 0.4) {
-            // Veteran falls less?
-            let fallChance = 0.4;
-            if (this.playerTraits.includes("iron_will")) fallChance = 0.2;
+          // Increased base fall chance from 0.4 to 0.5
+          let fallChance = 0.5;
+          if (this.playerTraits.includes("iron_will")) fallChance = 0.25;
 
-            if (Math.random() < fallChance) {
-              hpCost += 30;
-              this.showNotification("摸黑赶路摔伤了！(-30HP)", "negative");
-            }
+          if (Math.random() < fallChance) {
+            hpCost += 35;
+            this.showNotification("摸黑赶路摔伤了！(-35HP)", "negative");
           }
         }
       }
@@ -725,6 +723,45 @@ export const useGameStore = defineStore("game", {
             );
             this.moveToScene("node_evt_ice_discard_feedback");
           }
+          break;
+        case "gain_item_flower":
+          this.gainItem("special_flower");
+          break;
+        case "gain_item_water":
+          this.gainItem("water_001");
+          break;
+        case "loot_supplies_big":
+          this.gainItem("food_001");
+          this.gainItem("food_001");
+          this.gainItem("water_001");
+          this.gainItem("water_001");
+          this.showNotification("获得大量物资", "success");
+          break;
+        case "lose_food_water":
+          const foodIdx = this.inventory.findIndex(
+            (i: Item) => i.id === "food_001"
+          );
+          if (foodIdx > -1) this.inventory.splice(foodIdx, 1);
+          const waterIdx = this.inventory.findIndex(
+            (i: Item) => i.id === "water_001"
+          );
+          if (waterIdx > -1) this.inventory.splice(waterIdx, 1);
+          this.showNotification("失去了部分食物和水", "normal");
+          break;
+        case "lose_random_item":
+          if (this.inventory.length > 0) {
+            const randIdx = Math.floor(Math.random() * this.inventory.length);
+            const lostItem = this.inventory[randIdx];
+            this.inventory.splice(randIdx, 1);
+            this.showNotification(`失去了: ${lostItem.name}`, "negative");
+          }
+          break;
+        case "restore_sanity_full":
+          this.status.sanity = this.status.maxSanity;
+          this.showNotification("理智完全恢复", "success");
+          break;
+        case "die_cold": // Ensure exists just in case
+          this.die("dead_cold");
           break;
         default:
           console.warn("Unknown action:", action);

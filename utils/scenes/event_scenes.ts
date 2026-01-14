@@ -137,12 +137,12 @@ export const eventScenes: Record<string, Scene> = {
     choices: [
       {
         text: "不管不顾，强行突围",
-        cost: { hp: 40, hunger: 20, sanity: 15 },
+        cost: { hp: 50, hunger: 25, sanity: 20 },
         target: "node_evt_storm_force_feedback",
       },
       {
         text: "找块巨石背风扎营",
-        cost: { hunger: 40, sanity: 5 },
+        cost: { hunger: 50, sanity: 10 },
         target: "node_evt_storm_camp_feedback",
       },
       { text: "绝望中尝试拨打SOS", action: "sos" },
@@ -191,7 +191,7 @@ export const eventScenes: Record<string, Scene> = {
       { text: "老实认罚，配合执法", target: "end_caught" },
       {
         text: "趁着云雾遮挡，钻进树林跑！",
-        cost: { hp: 30, hunger: 30, sanity: 15 },
+        cost: { hp: 40, hunger: 35, sanity: 20 },
         target: "node_evt_ranger_evade_feedback",
       },
     ],
@@ -271,7 +271,7 @@ export const eventScenes: Record<string, Scene> = {
       },
       {
         text: "大声驱赶",
-        cost: { hp: 50, sanity: 10 },
+        cost: { hp: 60, sanity: 15 },
         target: "node_evt_takin_scare_feedback",
       },
     ],
@@ -624,6 +624,568 @@ export const eventScenes: Record<string, Scene> = {
     bg: "evt_shelter_cave",
     choices: [{ text: "继续赶路", target: "resume" }],
   },
+
+  // [NEW] Event 1: Hypothermia Warning (Based on Sun Liang & various cases)
+  evt_hypothermia_warning: {
+    id: "evt_hypothermia_warning",
+    text: "你突然感到一阵莫名的“温暖”，不再觉得冷了，甚至想解开衣扣。这是极度危险的信号——失温导致的“反常热感”。你的核心体温正在快速下降！",
+    roleText: {
+      doctor:
+        "这是失温三期的典型症状！体温调节中枢已经混乱。如果这时候脱衣服（反常脱衣），必死无疑。必须立刻停止失热！",
+    },
+    bg: "bg_storm",
+    choices: [
+      {
+        text: "立刻找避风处生火取暖",
+        cost: { hunger: 20 },
+        target: "node_evt_hypothermia_fire",
+      },
+      {
+        text: "喝热水并做高抬腿运动",
+        cost: { hunger: 10 }, // Modified to remove invalid 'water' cost
+        // Simplified cost logic: if checked via action, fine. Here just standard cost.
+        target: "node_evt_hypothermia_move",
+      },
+      {
+        text: "不管它，继续赶路 (致死风险)",
+        target: "node_evt_hypothermia_ignore",
+      },
+    ],
+  },
+  node_evt_hypothermia_fire: {
+    id: "node_evt_hypothermia_fire",
+    text: "你强忍着睡意，用颤抖的手收集枯枝生起了一堆火。火焰的温度让你逐渐找回了知觉，那股诡异的“热感”消失了，取而代之的是真实的寒冷——但这才是活着的表现。\n(状态反馈：饱食度 -20，体温恢复)",
+    bg: "loc_camp",
+    choices: [{ text: "捡回一条命", target: "resume" }],
+  },
+  node_evt_hypothermia_move: {
+    id: "node_evt_hypothermia_move",
+    text: "你强迫自己喝下半壶热水，然后疯狂地做深蹲和高抬腿。心脏剧烈跳动，血液重新流向四肢。你出了一身冷汗，但神智终于清醒了。\n(状态反馈：饱食度 -10)",
+    bg: "bg_storm",
+    choices: [{ text: "继续前行", target: "resume" }],
+  },
+  node_evt_hypothermia_ignore: {
+    id: "node_evt_hypothermia_ignore",
+    text: "你觉得身体很暖和，不需要停下来。这种幻觉伴随你走了很久，直到你感觉困意袭来，想躺在雪地上睡一觉...",
+    bg: "bg_storm",
+    choices: [
+      {
+        text: "闭上眼睛...",
+        target: "dead_cold", // Direct death
+        action: "die_cold", // Special action to trigger specific death message? Or just reuse die logic
+      },
+    ],
+  },
+
+  // [NEW] Event 2: Phone Dead (Based on Sun Liang case)
+  evt_phone_dead: {
+    id: "evt_phone_dead",
+    text: "你想掏出手机确认轨迹，却发现屏幕漆黑一片。低温让电池瞬间掉电关机。充电宝也冻成了冰砖。现在的你，失去了现代科技的庇护，只能靠路标和直觉了。",
+    bg: "loc_ridge",
+    choices: [
+      {
+        text: "把手机放在怀里贴身捂热",
+        cost: { hp: 5 },
+        target: "node_evt_phone_warm",
+      },
+      {
+        text: "凭借记忆和路标前进",
+        cost: { sanity: 15 },
+        target: "node_evt_phone_memory",
+      },
+    ],
+  },
+  node_evt_phone_warm: {
+    id: "node_evt_phone_warm",
+    text: "你把冰凉的手机贴在胸口，用体温去唤醒电池。寒意直透心底，但几分钟后，屏幕终于亮了！你赶紧记下了接下来的路线坐标。\n(状态反馈：生命值 -5)",
+    bg: "loc_ridge",
+    choices: [{ text: "赶紧收好手机", target: "resume" }],
+  },
+  node_evt_phone_memory: {
+    id: "node_evt_phone_memory",
+    text: "没有了轨迹导航，每一块石头看起来都差不多。你在迷茫中摸索前进，不断怀疑自己是否走错。这种未知的恐惧在不断吞噬你的理智。\n(状态反馈：理智 -15)",
+    bg: "loc_stone_sea",
+    choices: [{ text: "艰难通过", target: "resume" }],
+  },
+
+  // [NEW] Event 3: Abandoned Pack (Based on blogger finding body case)
+  evt_abandoned_pack: {
+    id: "evt_abandoned_pack",
+    text: "路边的乱石堆里扔着一个鲜艳的登山包，看起来很新，但上面覆盖着一层薄雪。周围没有人的踪迹。这是博主“猛蛇过江”视频里提到过的那种情况吗？",
+    bg: "evt_abandoned_tent",
+    choices: [
+      {
+        text: "打开看看有无物资",
+        action: "loot_supplies_big", // New action for bigger loot
+        target: "node_evt_pack_loot",
+      },
+      {
+        text: "大声呼喊寻找失主",
+        cost: { hunger: 5 },
+        target: "node_evt_pack_shout",
+      },
+      {
+        text: "不做停留，快速通过",
+        target: "resume",
+      },
+    ],
+  },
+  node_evt_pack_loot: {
+    id: "node_evt_pack_loot",
+    text: "你在包里发现了不少高热量食物和全新的气罐。但当你看到夹层里的一张全家福照片时，心里咯噔了一下。这可能是某人的遗物...\n(状态反馈：获得大量物资，理智 -10)",
+    bg: "evt_abandoned_tent",
+    choices: [{ text: "背负着罪恶感离开", target: "resume" }],
+  },
+  node_evt_pack_shout: {
+    id: "node_evt_pack_shout",
+    text: "“有人吗——？”你的声音被风吹散。无人回应。或许失主只是下撤时为了减重丢弃了背包，又或许... 你不敢深想。\n(状态反馈：饱食度 -5)",
+    bg: "evt_abandoned_tent",
+    choices: [{ text: "继续赶路", target: "resume" }],
+  },
+
+  // [NEW] Event 4: Returning Hiker (Based on rescue cases)
+  evt_return_hiker: {
+    id: "evt_return_hiker",
+    text: "迎面走来一个神色慌张的驴友，他甚至只背了轻量化的小包，满脸疲惫。见到你，他大声喊道：“别往上走了！上面风太大了，根本站不住！我要下撤了，你也快回去吧！”",
+    bg: "loc_ridge",
+    choices: [
+      {
+        text: "听人劝，原地休整观察",
+        cost: { hunger: 10 },
+        target: "node_evt_return_wait",
+      },
+      {
+        text: "不信邪，继续冲",
+        cost: { hp: 20, hunger: 20 },
+        target: "node_evt_return_push",
+      },
+      {
+        text: "询问详细路况",
+        target: "node_evt_return_ask",
+      },
+    ],
+  },
+  node_evt_return_wait: {
+    id: "node_evt_return_wait",
+    text: "你选择相信他的警告，找了个背风处躲避了一阵。果然，没过多久狂风大作，如果你刚才在脊线上，恐怕已经被吹飞了。\n(状态反馈：饱食度 -10)",
+    bg: "bg_storm",
+    choices: [{ text: "躲过一劫", target: "resume" }],
+  },
+  node_evt_return_push: {
+    id: "node_evt_return_push",
+    text: "你觉得他太夸张了，执意继续上行。结果刚上梁顶，一阵妖风差点把你像风筝一样放飞。你只能趴在地上爬行，狼狈不堪。\n(状态反馈：生命值 -20，饱食度 -20)",
+    bg: "bg_storm",
+    choices: [{ text: "狼狈爬过", target: "resume" }],
+  },
+  node_evt_return_ask: {
+    id: "node_evt_return_ask",
+    text: "你拉住他细问，得知前方跑马梁处有结冰，极难通过。虽然他执意下撤，但他的情报让你有了心理准备，通过时格外小心。\n(状态反馈：获得情报)",
+    bg: "loc_ridge",
+    choices: [{ text: "谢过依然前行", target: "resume" }],
+  },
+
+  // [NEW] Event 5: Hallucination Lost (Based on 'Mengshe' experience)
+  evt_hallucination_lost: {
+    id: "evt_hallucination_lost",
+    text: "大雾弥漫，你确信自己看到前方不远处有一顶红色的帐篷，甚至有人在向你招手。那是营地吗？但看了一眼GPS，轨迹显示你应该往右走，而不是往那个“帐篷”走。",
+    roleText: {
+      sanity: "你的理智值很低，那个招手的人影看起来越来越真实...",
+    },
+    bg: "fog_halluncination", // Generic fog or specific
+    choices: [
+      {
+        text: "相信眼睛，走向帐篷",
+        cost: { hp: 30, sanity: -20 },
+        target: "node_evt_hallucination_follow",
+      },
+      {
+        text: "相信数据，死磕轨迹",
+        cost: { sanity: 5 },
+        target: "node_evt_hallucination_gps",
+      },
+    ],
+  },
+  node_evt_hallucination_follow: {
+    id: "node_evt_hallucination_follow",
+    text: "你跌跌撞撞地跑向那个“帐篷”，走近了才发现那只是一块挂着红布条的巨石。而你因为偏离路线，差点滑下旁边的悬崖！等爬回正路，你已经精疲力尽。\n(状态反馈：生命值 -30，理智 -20)",
+    bg: "loc_cliff",
+    choices: [{ text: "后怕不已", target: "resume" }],
+  },
+  node_evt_hallucination_gps: {
+    id: "node_evt_hallucination_gps",
+    text: "你强迫自己不去看那个诱人的幻象，死死盯着GPS屏幕一步步挪动。终于，那种被注视的感觉消失了，你安全通过了迷雾区。\n(状态反馈：理智 -5)",
+    bg: "loc_ridge",
+    choices: [{ text: "战胜幻觉", target: "resume" }],
+  },
+
+  // [NEW] Event 6: Rescue Team (Based on real rescue operations)
+  evt_rescue_team: {
+    id: "evt_rescue_team",
+    text: "一阵喧闹声打破了沉寂。你看到一队全副武装的救援人员正抬着担架艰难前行。领队看到你，严肃地问道：“前面情况怎么样？我们正在搜救一名失联者。你如果状态不好，建议跟我们一起下撤。”",
+    bg: "loc_camp",
+    choices: [
+      {
+        text: "接受建议，跟随下撤 (结束游戏)",
+        target: "end_rescue_team",
+      },
+      {
+        text: "表示状态良好，继续穿越",
+        cost: { hunger: 5 },
+        target: "node_evt_rescue_ignore",
+      },
+      {
+        text: "提供前方路况信息",
+        target: "node_evt_rescue_info",
+      },
+    ],
+  },
+  node_evt_rescue_ignore: {
+    id: "node_evt_rescue_ignore",
+    text: "救援领队摇了摇头，记录了你的信息，并再一次警告了前方天气的恶劣。看着他们远去的背影，你感到一丝孤独，但也更加坚定了。\n(状态反馈：饱食度 -5)",
+    bg: "loc_camp",
+    choices: [{ text: "目送离开", target: "resume" }],
+  },
+  node_evt_rescue_info: {
+    id: "node_evt_rescue_info",
+    text: "你详细描述了刚才经过路段的结冰情况。领队非常感谢，送了你一瓶电解质水作为感谢。\n(状态反馈：获得电解质水)",
+    bg: "loc_camp",
+    choices: [
+      { text: "互道珍重", target: "resume", action: "gain_item_water" },
+    ], // Moved action to choice
+  },
+
+  // [NEW] Event 7: Foot Frostbite (Common winter injury)
+  evt_frostbite: {
+    id: "evt_frostbite",
+    text: "停下来休息时，你感觉脚趾失去了知觉。脱下鞋袜一看，脚趾已经呈现灰白色。这是冻伤的早期症状！如果继续在雪地里跋涉，可能会面临截肢风险。",
+    bg: "bg_snow",
+    choices: [
+      {
+        text: "用雪搓热脚部 (错误示范)",
+        cost: { hp: 10 },
+        target: "node_evt_frostbite_bad",
+      },
+      {
+        text: "换上备用干袜，用体温回暖",
+        cost: { hunger: 10 },
+        target: "node_evt_frostbite_good",
+      },
+      {
+        text: "无视，继续赶路",
+        cost: { hp: 20 },
+        target: "node_evt_frostbite_ignore",
+      },
+    ],
+  },
+  node_evt_frostbite_bad: {
+    id: "node_evt_frostbite_bad",
+    text: "你听信了偏方用雪搓脚，结果皮肤受损，疼痛加剧。冻伤不仅没好，反而更严重了。\n(状态反馈：生命值 -10)",
+    bg: "bg_snow",
+    choices: [{ text: "悔之晚矣", target: "resume" }],
+  },
+  node_evt_frostbite_good: {
+    id: "node_evt_frostbite_good",
+    text: "你迅速换上干燥的袜子，并将冰凉的双脚放进怀里捂热。虽然过程痛苦，但血液循环终于恢复了。\n(状态反馈：饱食度 -10)",
+    bg: "bg_snow",
+    choices: [{ text: "处理得当", target: "resume" }],
+  },
+  node_evt_frostbite_ignore: {
+    id: "node_evt_frostbite_ignore",
+    text: "你强忍著麻木继续行走。直到后来，你每走一步都像踩在刀尖上。脚部的损伤已经不可逆转。\n(状态反馈：生命值 -20，永久减速风险)",
+    bg: "bg_snow",
+    choices: [{ text: "痛苦前行", target: "resume" }],
+  },
+
+  // [NEW] Event 8: Blizzard Trap (Based on 2017 case)
+  evt_blizzard_trap: {
+    id: "evt_blizzard_trap",
+    text: "暴风雪来得毫无征兆，瞬间将能见度降至零。狂风裹挟着冰晶，打在脸上生疼。你被困在了一处山脊上，进退两难。这就是当年30多名驴友被困的情景重现！",
+    bg: "bg_storm",
+    choices: [
+      {
+        text: "就地挖雪洞躲避",
+        cost: { hunger: 25, hp: 5 },
+        target: "node_evt_blizzard_hole",
+      },
+      {
+        text: "强行突围下撤",
+        cost: { hp: 40, hunger: 30 },
+        target: "node_evt_blizzard_rush",
+      },
+    ],
+  },
+  node_evt_blizzard_hole: {
+    id: "node_evt_blizzard_hole",
+    text: "你费尽九牛二虎之力挖了一个简易雪洞。虽然狭窄幽闭，但它为你挡住了致命的寒风。你在里面瑟瑟发抖地熬过了一夜。\n(状态反馈：饱食度 -25，生命值 -5)",
+    bg: "evt_shelter_cave",
+    choices: [{ text: "熬过一劫", target: "resume" }],
+  },
+  node_evt_blizzard_rush: {
+    id: "node_evt_blizzard_rush",
+    text: "你不顾一切地向山下冲去。狂风无数次把你吹倒，你浑身是伤，迷失了方向。好在命大，你误打误撞冲出风口，如果不幸一点，你可能就是失踪名单上的一员。\n(状态反馈：生命值 -40，饱食度 -30)",
+    bg: "bg_storm",
+    choices: [{ text: "死里逃生", target: "resume" }],
+  },
+
+  // [NEW] Event 9: SOS Signal (Based on real SOS case)
+  evt_sos_signal: {
+    id: "evt_sos_signal",
+    text: "夜里，你似乎看到远处的山坳里有一闪一闪的灯光，像是SOS求救信号（三短三长三短）。但那个位置偏离了主路很远，而且地势险恶。",
+    bg: "bg_night",
+    choices: [
+      {
+        text: "可能是错觉，不予理会",
+        cost: { sanity: -5 }, // Regain sanity by ignoring? or lose? Let's say lose guilt.
+        target: "node_evt_sos_ignore",
+      },
+      {
+        text: "尝试用头灯回应",
+        target: "node_evt_sos_reply",
+      },
+      {
+        text: "冒险前往查看 (启动支线：营救)",
+        // Transition to side quest if implemented, else generic result
+        target: "node_evt_sos_check",
+        cost: { hunger: 10, hp: 10 },
+      },
+    ],
+  },
+  node_evt_sos_ignore: {
+    id: "node_evt_sos_ignore",
+    text: "你告诉自己那可能是鬼火或者光线折射。多一事不如少一事。但那个闪烁的灯光整晚都在你脑海里挥之不去。\n(状态反馈：理智 -5)",
+    bg: "bg_night",
+    choices: [{ text: "难以入眠", target: "resume" }],
+  },
+  node_evt_sos_reply: {
+    id: "node_evt_sos_reply",
+    text: "你用头灯回应了信号。对方似乎很激动，频率加快了。但你无法前往救援，只能默默祝他好运，并记下坐标准备下山报警。\n(状态反馈：理智 +5)",
+    bg: "bg_night",
+    choices: [{ text: "尽力而为", target: "resume" }],
+  },
+  node_evt_sos_check: {
+    id: "node_evt_sos_check",
+    text: "你艰难地爬向那个光点。发现是一个摔伤的驴友（支线：营救失联驴友 前置）。由于当前无法背负他，你留下了食物和保温毯，承诺下山找人。\n(状态反馈：失去部分物资，理智 +20)",
+    bg: "loc_cliff",
+    choices: [
+      { text: "许下承诺", target: "resume", action: "lose_food_water" },
+    ], // Moved action to choice
+  },
+
+  // [NEW] Event 10: Takin Herd (Based on Takin attacks)
+  evt_takin_herd: {
+    id: "evt_takin_herd",
+    text: "在这个季节，羚牛正处于发情期，极具攻击性。你前方的小路上，赫然出现了一群金毛扭角羚。领头的公牛正死死盯着你，喷着粗气。救援队都曾被它们逼退！",
+    bg: "loc_forest",
+    choices: [
+      {
+        text: "大声喊叫驱赶 (极度危险)",
+        cost: { hp: 50 },
+        target: "node_evt_takin_shout",
+      },
+      {
+        text: "悄悄后退，绕路而行",
+        cost: { hunger: 15 },
+        target: "node_evt_takin_detour",
+      },
+      {
+        text: "原地不动，等待它们离开",
+        cost: { hunger: 10, hp: 5 }, // Freeze cost
+        target: "node_evt_takin_wait",
+      },
+    ],
+  },
+  node_evt_takin_shout: {
+    id: "node_evt_takin_shout",
+    text: "你的喊叫激怒了公牛！它像坦克一样冲了过来。你连滚带爬地逃入乱石堆，大腿被牛角擦伤，血流如注。\n(状态反馈：生命值 -50)",
+    bg: "loc_forest",
+    choices: [{ text: "惨痛教训", target: "resume" }],
+  },
+  node_evt_takin_detour: {
+    id: "node_evt_takin_detour",
+    text: "你大气都不敢出，慢慢后退，然后从充满荆棘的灌木丛中绕了一大圈。虽然衣服被划破，体力透支，但至少保住了小命。\n(状态反馈：饱食度 -15)",
+    bg: "loc_forest",
+    choices: [{ text: "安全第一", target: "resume" }],
+  },
+  node_evt_takin_wait: {
+    id: "node_evt_takin_wait",
+    text: "你像尊雕塑一样僵在原地。半小时后，羚牛群终于慢悠悠地离开了。你在寒风中冻得瑟瑟发抖，双腿发麻。\n(状态反馈：饱食度 -10，生命值 -5)",
+    bg: "loc_forest",
+    choices: [{ text: "虚惊一场", target: "resume" }],
+  },
+
+  // [NEW] Event 11: Altitude Sickness (Generic challenge)
+  evt_altitude_sickness: {
+    id: "evt_altitude_sickness",
+    text: "隨著海拔上升，你开始感到剧烈的头痛，像是有人用钢箍紧紧勒住你的脑袋。呼吸变得急促，恶心感一阵阵袭来。这是高原反应的症状。",
+    bg: "loc_ridge",
+    choices: [
+      {
+        text: "原地休息调整呼吸",
+        cost: { hunger: 5 },
+        target: "node_evt_ams_rest",
+      },
+      {
+        text: "强行赶路 (可能引发脑水肿)",
+        cost: { hp: 15, sanity: 10 },
+        target: "node_evt_ams_push",
+      },
+      {
+        text: "服用止痛药 (如果背包里有)",
+        // Logic for checking item is complex in choices, let's use a generic 'use' action or just assume player has generic meds if they chose this?
+        // Let's assume standard cost but maybe better result if we could check. For now simple.
+        cost: { hunger: 2 },
+        target: "node_evt_ams_med",
+      },
+    ],
+  },
+  node_evt_ams_rest: {
+    id: "node_evt_ams_rest",
+    text: "你停下来深呼吸，让心率慢慢降下来。虽然浪费了一些时间，但头痛稍微缓解了。\n(状态反馈：饱食度 -5)",
+    bg: "loc_ridge",
+    choices: [{ text: "稍微好转", target: "resume" }],
+  },
+  node_evt_ams_push: {
+    id: "node_evt_ams_push",
+    text: "你无视身体的抗议继续攀登。每走一步脑袋都像要炸开一样，视线开始模糊。这种透支对身体造成了不小的伤害。\n(状态反馈：生命值 -15，理智 -10)",
+    bg: "loc_ridge",
+    choices: [{ text: "痛苦不堪", target: "resume" }],
+  },
+  node_evt_ams_med: {
+    id: "node_evt_ams_med",
+    text: "你吞下几片止痛药，就着冷水咽下。药效上来后，那个紧箍咒终于松开了。\n(状态反馈：饱食度 -2)",
+    bg: "loc_ridge",
+    choices: [{ text: "药效显著", target: "resume" }],
+  },
+
+  // [NEW] Event 12: Gear Lost (Weather incident)
+  evt_gear_lost: {
+    id: "evt_gear_lost",
+    text: "你在翻越一处垭口时，忽然一阵狂风袭来，把你背包侧袋里挂着的一件东西吹飞了！它顺着陡峭的碎石坡滚落下去，很快就没了踪影。",
+    bg: "bg_storm",
+    choices: [
+      {
+        text: "冒险下去捡 (极度危险)",
+        cost: { hp: 30 },
+        target: "node_evt_gear_retrieve",
+      },
+      {
+        text: "忍痛放弃，保命要紧",
+        cost: { sanity: 10 },
+        action: "lose_random_item", // Helper action needed
+        target: "node_evt_gear_giveup",
+      },
+    ],
+  },
+  node_evt_gear_retrieve: {
+    id: "node_evt_gear_retrieve",
+    text: "你像壁虎一样贴着岩壁爬下去，几次差点滑坠。虽然找回了东西，但身上多了好几处擦伤，差点把命搭上。\n(状态反馈：生命值 -30)",
+    bg: "loc_cliff",
+    choices: [{ text: "惊魂未定", target: "resume" }],
+  },
+  node_evt_gear_giveup: {
+    id: "node_evt_gear_giveup",
+    text: "你眼睁睁看着它消失在深渊里。虽然心疼，但看了一眼脚下的万丈悬崖，你觉得自己的决定是对的。\n(状态反馈：失去一件物品，理智 -10)",
+    bg: "bg_storm",
+    choices: [{ text: "无奈离开", target: "resume" }],
+  },
+
+  // [NEW] Event 13: Mani Pile (Atmosphere)
+  evt_mani_pile: {
+    id: "evt_mani_pile",
+    text: "在荒凉的梁顶，你发现了一堆用石头垒起的“玛尼堆”。这是前人留下的路标，也是一种祈福。在玛尼堆旁边，还立着一块简陋的石碑，刻着一个年轻人的名字和日期。",
+    bg: "loc_stone_sea",
+    choices: [
+      {
+        text: "添一块石头，默哀致敬",
+        cost: { sanity: -10 }, // Sanity heal
+        target: "node_evt_mani_pray",
+      },
+      {
+        text: "清理周围的垃圾",
+        cost: { hunger: 5, sanity: -5 },
+        target: "node_evt_mani_clean",
+      },
+      {
+        text: "匆匆路过",
+        target: "resume",
+      },
+    ],
+  },
+  node_evt_mani_pray: {
+    id: "node_evt_mani_pray",
+    text: "你捡起一块石头轻轻放上去，心中默念祈祷。在这片死亡之地，这种仪式感让你感到一种与他人的链接，不再那么孤独。\n(状态反馈：理智 +10)",
+    bg: "loc_stone_sea",
+    choices: [{ text: "心灵慰藉", target: "resume" }],
+  },
+  node_evt_mani_clean: {
+    id: "node_evt_mani_clean",
+    text: "你把玛尼堆周围散落的食品包装袋收集起来带走。虽然背负重了一点，但你觉得这是对逝者最好的尊重。\n(状态反馈：理智 +5)",
+    bg: "loc_stone_sea",
+    choices: [{ text: "守护净土", target: "resume" }],
+  },
+
+  // [NEW] Event 14: Sunset Decision (Time management)
+  evt_sunset_decision: {
+    id: "evt_sunset_decision",
+    text: "太阳即将落山，余晖将云海染成了血红色。前方还有一段艰难的爬升才能到达理想营地，而这里有一块避风的巨石勉强可以扎营。",
+    bg: "bg_sunset", // need asset or use night
+    choices: [
+      {
+        text: "贪赶路，趁着余晖冲刺",
+        cost: { hunger: 15 },
+        target: "node_evt_sunset_rush",
+      },
+      {
+        text: "求稳妥，原地将就一晚",
+        target: "node_evt_sunset_camp", // Leads to camp action or just skip
+      },
+    ],
+  },
+  node_evt_sunset_rush: {
+    id: "node_evt_sunset_rush",
+    text: "你加快脚步，终于在天完全黑透前赶到了营地。虽然累得半死，但这里地势平坦，水源充足，值得一拼。\n(状态反馈：饱食度 -15)",
+    bg: "loc_camp",
+    choices: [{ text: "安营扎寨", target: "resume" }],
+  },
+  node_evt_sunset_camp: {
+    id: "node_evt_sunset_camp",
+    text: "你决定不冒险走夜路。巨石下虽然地面不平，勉强能睡。夜里风很大，你睡得并不安稳。\n(状态反馈：休息质量一般)",
+    bg: "evt_shelter_cave",
+    // logic for partial rest? For now just resume, assume player will click Rest button in main UI if they want, or this node forces a partial rest?
+    // Let's just make it flavor.
+    choices: [{ text: "等待天亮", target: "resume" }],
+  },
+
+  // [NEW] Event 15: Cliff Dilemma (Pathfinding)
+  evt_cliff_dilemma: {
+    id: "evt_cliff_dilemma",
+    text: "原本的路迹在一处断崖前消失了。这一段岩壁大概有3米高，看起来能爬下去，但下方是深不见底的沟壑。往回绕路的话，至少要多走2小时。",
+    bg: "loc_cliff",
+    choices: [
+      {
+        text: "相信身手，徒手攀爬",
+        cost: { hunger: 5 }, // hidden risk check
+        target: "node_evt_cliff_climb",
+      },
+      {
+        text: "安全第一，绕路折返",
+        cost: { hunger: 20 },
+        target: "node_evt_cliff_detour",
+      },
+    ],
+  },
+  node_evt_cliff_climb: {
+    id: "node_evt_cliff_climb",
+    text: "你小心翼翼地探出脚。一块风化的岩石突然松动！好在你抓住了旁边的树根。这一瞬间的冷汗浸湿了后背。最终你安全落地，节省了大量时间。\n(状态反馈：饱食度 -5)",
+    bg: "loc_cliff",
+    choices: [{ text: "惊险过关", target: "resume" }],
+  },
+  node_evt_cliff_detour: {
+    id: "node_evt_cliff_detour",
+    text: "你老老实实地绕了一大圈。虽然多消耗了体能，但看着那处断崖，你觉得还是踩在实地上更踏实。\n(状态反馈：饱食度 -20)",
+    bg: "loc_forest",
+    choices: [{ text: "稳健选择", target: "resume" }],
+  },
 };
 
 export const randomEventIds = [
@@ -638,5 +1200,20 @@ export const randomEventIds = [
   "evt_lightning",
   "evt_wild_boar",
   "evt_thin_ice", // [NEW]
-  "evt_shelter_cave", // [NEW]
+  "evt_shelter_cave",
+  "evt_hypothermia_warning",
+  "evt_phone_dead",
+  "evt_abandoned_pack",
+  "evt_return_hiker",
+  "evt_hallucination_lost",
+  "evt_rescue_team",
+  "evt_frostbite",
+  "evt_blizzard_trap",
+  "evt_sos_signal",
+  "evt_takin_herd",
+  "evt_altitude_sickness",
+  "evt_gear_lost",
+  "evt_mani_pile",
+  "evt_sunset_decision",
+  "evt_cliff_dilemma",
 ];

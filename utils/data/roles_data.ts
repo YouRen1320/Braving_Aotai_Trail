@@ -31,13 +31,7 @@ export const roles: Role[] = [
       maxHunger: 100,
       maxSanity: 120,
     },
-    items: [
-      "gear_headlamp_01",
-      "food_001",
-      "food_001",
-      "food_001",
-      "water_001",
-    ],
+    items: ["gear_headlamp_01", "food_001", "food_001", "water_001"],
   },
   {
     id: "athlete",
@@ -49,18 +43,10 @@ export const roles: Role[] = [
     traits: ["high_metabolism"],
     stats: {
       maxHp: 130,
-      maxHunger: 100,
+      maxHunger: 90,
       maxSanity: 100,
     },
-    items: [
-      "food_001",
-      "food_001",
-      "food_001",
-      "food_001",
-      "water_001",
-      "water_001",
-      "water_001",
-    ],
+    items: ["food_001", "food_001", "food_001", "water_001", "water_001"],
   },
   {
     id: "doctor",
@@ -75,7 +61,7 @@ export const roles: Role[] = [
       maxHunger: 100,
       maxSanity: 110,
     },
-    items: ["med_001", "med_001", "food_001", "food_001", "water_001"],
+    items: ["med_001", "food_001", "food_001", "water_001"],
   },
   {
     id: "veteran",
@@ -92,7 +78,7 @@ export const roles: Role[] = [
       maxHunger: 100,
       maxSanity: 90,
     },
-    items: ["gear_boots_01", "food_001", "food_001", "food_001", "water_001"],
+    items: ["gear_boots_01", "food_001", "food_001", "water_001"],
   },
   {
     id: "porter",
@@ -110,7 +96,6 @@ export const roles: Role[] = [
       maxSanity: 80,
     },
     items: [
-      "food_001",
       "food_001",
       "food_001",
       "food_001",
@@ -132,13 +117,7 @@ export const roles: Role[] = [
       maxHunger: 90,
       maxSanity: 140,
     },
-    items: [
-      "food_001",
-      "food_001",
-      "water_001",
-      "water_001",
-      "gear_trekking_pole",
-    ],
+    items: ["food_001", "food_001", "water_001", "gear_trekking_pole"],
   },
   {
     id: "geologist",
@@ -174,7 +153,7 @@ export const roles: Role[] = [
       maxHunger: 130,
       maxSanity: 100,
     },
-    items: ["food_001", "food_001", "water_001", "water_001"],
+    items: ["food_001", "food_001", "water_001"],
   },
   {
     id: "gearhead",

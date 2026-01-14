@@ -32,8 +32,8 @@ export const items: Record<string, Item> = {
     icon: "💧",
     weight: 0.5,
     effect: {
-      hunger: 5,
-      msg: "你喝了一口水，感觉喉咙舒服多了。(饱食+5)",
+      hunger: 3,
+      msg: "你喝了一口水，感觉喉咙舒服多了。(饱食+3)",
     },
   },
   food_001: {
@@ -44,8 +44,8 @@ export const items: Record<string, Item> = {
     icon: "🍪",
     weight: 0.2,
     effect: {
-      hunger: 25,
-      msg: "你艰难地咽下饼干，胃里充实了不少。(饱食+25)",
+      hunger: 15,
+      msg: "你艰难地咽下饼干，胃里充实了不少。(饱食+15)",
     },
   },
   med_001: {
@@ -56,8 +56,8 @@ export const items: Record<string, Item> = {
     icon: "💊",
     weight: 0.1,
     effect: {
-      hp: 20,
-      msg: "伤口经过处理不再剧烈疼痛。(生命+20)",
+      hp: 15,
+      msg: "伤口经过处理不再剧烈疼痛。(生命+15)",
     },
   },
   // --- GEAR ---
@@ -115,5 +115,14 @@ export const items: Record<string, Item> = {
       sanity: -5, // Passive drain if used? Or just lore. The logic is in game.ts
       msg: "滴答...滴答...它明明没有走动。",
     },
+  },
+  // [NEW] Special Items
+  special_flower: {
+    id: "special_flower",
+    name: "格桑花",
+    type: "material",
+    description: "一朵干枯的格桑花，夹在笔记本里。代表着幸福和美好。",
+    icon: "🌸",
+    weight: 0.0,
   },
 };
