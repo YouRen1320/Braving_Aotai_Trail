@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": ["wot-design-uni/global.d.ts", "@dcloudio/types", "@types/node"],
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+  },
+  "include": ["**/*.ts", "**/*.d.ts", "**/*.tsx", "**/*.vue"],
+  "exclude": ["node_modules", "unpackage", "dist"]
+}

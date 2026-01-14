@@ -4,18 +4,29 @@ import type { Scene } from "../types";
 export const mapScenes: Record<string, Scene> = {
   start_001: {
     id: "start_001",
-    text: "这里是塘口村，鳌太线的起点。清晨的空气冷冽刺骨。眼前是连绵的秦岭山脉，墨绿色的冷杉林在风中低语。这一去，便是数日的无人区。",
+    text: "这里是塘口村，也是无数驴友梦开始（或破碎）的地方。清晨的空气冷得像要把肺叶冻住。眼前是沉默的秦岭山脉，墨绿色的冷杉林仿佛巨兽的獠牙。你知道，一旦跨出这一步，接下来几天你的世界里将只有风、雪和石头。",
+    roleText: {
+      student:
+        "塘口村的清晨冷得像期末考场。你裹紧了冲锋衣，看着眼前连绵的秦岭，心里只有两个字：*刺激*。这可比在宿舍打游戏带劲多了。手机信号满格，发个朋友圈先：“鳌太线，爷来了！”",
+      veteran:
+        "塘口村。熟悉的寒意顺着裤管往上爬。你习惯性地整理了一下背包背负系统，这片山脉的气息让你想起了当年的拉练。只是这次，没有班长在后面吼了，也没人会掩护你的侧翼。",
+      gearhead:
+        "这湿度... 冲锋衣的DWR涂层应该能扛住。你低头检查了一下脚上的顶级Vibram大底登山鞋，又摸了摸始祖鸟背包的扣件。这身行头花了你三个月的工资，这要是不走出个样子来，都对不起这人民币的味道。",
+      photographer:
+        "晨光刚刚打在山脊线上，形成了完美的丁达尔效应。你下意识地去摸相机，这光线简直是上帝的恩赐。塘口村的清晨，色温大概在5500K左右，冷暖对比绝了。",
+    },
     bg: "loc_village",
     safe: true,
+    progress: 0,
     choices: [
       {
         text: "坐秀才家的拖拉机上山",
-        target: "node_tractor_ride", // Target the new intermediate node for narrative flow
+        target: "node_tractor_ride",
         cost: { hp: 0, hunger: 0 },
       },
       {
         text: "徒步前往登山口",
-        target: "node_hike_feedback", // Target feedback node
+        target: "node_hike_feedback",
         cost: { hunger: 2, hp: 0 },
       },
     ],
@@ -23,12 +34,17 @@ export const mapScenes: Record<string, Scene> = {
 
   node_tractor_ride: {
     id: "node_tractor_ride",
-    text: "拖拉机突突突地冒着黑烟，颠簸得像在骑马。虽然屁股受罪，但好歹省下了几公里爬坡的力气。秀才回头喊道：“这几天有雨，此时回头还来得及！”",
+    text: "拖拉机突突突地冒着黑烟，颠簸得像在迪厅蹦迪。虽然屁股被震得发麻，但这可是“豪华敞篷车”待遇。秀才回头喊道：“这几天预报有雨，小伙子，现在后悔还来得及！这山里头，吃人的哩！”",
+    roleText: {
+      geologist:
+        "随着拖拉机的颠簸，你观察着路边的岩层断面，典型的花岗岩构造。这种地质结构意味着上面的大石头路会非常硬。哪怕只是坐着，你的脑子里已经开始构建三维地形图了。",
+      poet: "这轰鸣的引擎声，像是一首粗犷的田园诗。黑烟升腾，这是工业文明向原始自然的最后一次致意。颠簸中，灵魂似乎也跟着震颤起来。",
+    },
     bg: "loc_tractor_road",
     safe: true,
     choices: [
       {
-        text: "谢过秀才，下车",
+        text: "笑着谢过秀才，背上包",
         target: "node_village_road",
       },
     ],
@@ -36,12 +52,16 @@ export const mapScenes: Record<string, Scene> = {
 
   node_hike_feedback: {
     id: "node_hike_feedback",
-    text: "还没进山，水泥路的上坡就让你气喘吁吁。背包带勒进肩膀，由于还没热身，每一步都显得格外沉重。\n(状态反馈：饱食度 -2)",
+    text: "这才刚开始，水泥路的上坡尤其无聊且折磨人。背包带像是两条蟒蛇勒进你的肩膀，还没热身，每一步都沉重得像脚上灌了铅。你开始怀疑自己是不是吃饱了撑的来遭这个罪。\n(状态反馈：饱食度 -2)",
+    roleText: {
+      runner:
+        "心率还没上来，但这种慢速爬坡让你很难受。你渴望跑起来，这种配速对你来说简直是散步。但背包限制了你的发挥，这该死的负重。",
+    },
     bg: "loc_village",
     safe: true,
     choices: [
       {
-        text: "调整呼吸，继续",
+        text: "调整呼吸，这才哪到哪",
         target: "node_village_road",
       },
     ],
@@ -49,17 +69,23 @@ export const mapScenes: Record<string, Scene> = {
 
   node_village_road: {
     id: "node_village_road",
-    text: "机耕路尽头是登山口。告示牌醒目写着：此为国家级自然保护区，禁止入内。违者罚款100-5000元。为了安全，请立即原路返回。",
+    text: "路尽头是登山口。旁边竖着块蓝色的警示牌：“核心保护区，禁止非法穿越”。这牌子在驴友圈里，基本等同于“由此进入副本”。不过上面的罚款金额（100-5000元）还是让你眉头跳了一下。",
+    roleText: {
+      student:
+        "警示牌？拍个照先！这可是“打卡点”。至于罚款... 只要跑得快，护林员就追不上我！",
+      doctor:
+        "看着警示牌，你想起了在急诊科见过的那些户外失温被送来的病人。敬畏自然，这不是一句空话。你再次确认了急救包的位置。",
+    },
     bg: "loc_tractor_road",
     safe: true,
     choices: [
       {
-        text: "加快脚步热身",
+        text: "不管了，加快脚步进山",
         target: "node_village_road_hike_feedback",
         cost: { hunger: 2 },
       },
       {
-        text: "检查背包",
+        text: "还是稳妥点，最后检查一遍背包",
         target: "node_village_road_check_feedback",
         cost: { hunger: 1 },
       },
@@ -161,6 +187,7 @@ export const mapScenes: Record<string, Scene> = {
     id: "node_forest_entry",
     text: "过了登山口便是火烧坡，坡上长满小杂木，开满小花，走起来还算轻松。但随着海拔爬升，呼吸开始变得急促。",
     bg: "loc_red_birch",
+    progress: 10, // [NEW]
     choices: [
       {
         text: "保持节奏爬升",
@@ -202,16 +229,25 @@ export const mapScenes: Record<string, Scene> = {
 
   node_forest_climb: {
     id: "node_forest_climb",
-    text: "海拔上升到2600米。树木变得稀疏，空气也变得稀薄。每迈出一步都需要大口喘气。",
+    text: "海拔上升到了2600米。周围的植被已经从阔叶林变成了冷杉。氧气似乎像变了心的恋人，越来越少。每一次呼吸，肺部都像拉风箱一样呼呼作响。",
+    roleText: {
+      student:
+        "这哪里是爬山，简直是渡劫！你感觉双腿已经不是自己的了，乳酸堆积带来的酸爽让你想原地躺平。什么“诗和远方”，现在只想来瓶冰可乐。",
+      veteran:
+        "这种缺氧的感觉反而让你兴奋。你的身体记忆被唤醒，步伐虽然慢，但极其稳定。三步一呼，三步一吸，这是长途行军的节奏。",
+      runner:
+        "心率上来了，终于爽了！虽然有点喘，但身体机能正在巅峰。你稍微加快了一点节奏，把旁边的两个重装“骆驼”甩在了身后。",
+    },
     bg: "loc_forest",
+    progress: 20,
     choices: [
       {
-        text: "咬牙坚持",
+        text: "咬紧牙关，这才刚开始！",
         target: "node_forest_climb_push_feedback",
         cost: { hunger: 15, hp: 5 },
       },
       {
-        text: "喝口水继续赶路",
+        text: "有点顶不住，喝口水缓缓",
         cost: { hp: -5, hunger: -2 },
         target: "node_2900",
       },
@@ -220,7 +256,7 @@ export const mapScenes: Record<string, Scene> = {
 
   node_forest_climb_push_feedback: {
     id: "node_forest_climb_push_feedback",
-    text: "缺氧让你的脑袋发涨，腿像灌了铅一样沉重。你全凭意志力在抬腿。汗水流进眼睛里，刺痛难忍。\n(状态反馈：饱食度 -15，生命值 -5)",
+    text: "缺氧让你的脑袋发涨，腿像灌了铅一样沉重。你全凭意志力在抬腿。汗水流进眼睛里，刺痛难忍。",
     bg: "loc_forest",
     choices: [
       {
@@ -232,15 +268,22 @@ export const mapScenes: Record<string, Scene> = {
 
   node_2900: {
     id: "node_2900",
-    text: "2900营地。通常早上出发的人中午就到这了，只有下午上山的才在此扎营。再往上走一点看到歪脖子树，就快到山脊线了。",
+    text: "2900营地到了。这里是一块相对平缓的草甸。通常早上出发的“强驴”中午就到这了，甚至不停留直接冲顶。只有像你这样的下午到的才会考虑扎营。再往上，就是传说中的“歪脖子树”了。",
+    roleText: {
+      gearhead:
+        "这块营地... 地面不平啊，帐篷不好搭。你开始四处寻找平整的地面，生怕地上的碎石划破了你那昂贵的超轻地布。",
+      photographer:
+        "2900的光线不错，夕阳穿过树林，斑驳陆离。你已经开始构图了，如果在这里扎营，明早的日出绝对能出大片。",
+    },
     bg: "loc_sunset_meadow",
+    progress: 35,
     choices: [
       {
-        text: "搭帐篷过夜",
+        text: "天色不早，搭帐篷混一晚（扎营）",
         action: "rest",
         target: "node_2900_morning",
       },
-      { text: "感觉状态不对，决定下撤", target: "end_retreat" },
+      { text: "状态极差，这山我不爬了（下撤）", target: "end_retreat" },
     ],
   },
 
@@ -273,7 +316,7 @@ export const mapScenes: Record<string, Scene> = {
 
   node_penjing_ascent_climb_feedback: {
     id: "node_penjing_ascent_climb_feedback",
-    text: "你像一只壁虎一样趴在乱石上移动。虽然姿势不雅，但四点着地确实稳当。只是手指被粗糙的岩石磨得生疼。\n(状态反馈：饱食度 -20，生命值 -5)",
+    text: "你像一只壁虎一样趴在乱石上移动。虽然姿势不雅，但四点着地确实稳当。只是手指被粗糙的岩石磨得生疼。",
     bg: "loc_stone_sea",
     choices: [
       {
@@ -285,11 +328,11 @@ export const mapScenes: Record<string, Scene> = {
 
   node_penjing_ascent_stick_feedback: {
     id: "node_penjing_ascent_stick_feedback",
-    text: "登山杖由于受力过猛而微微弯曲。你把全身重量都压在杖上，减轻了膝盖的负担。这种省力的技巧让你在乱石中游刃有余。\n(状态反馈：饱食度 -15)",
+    text: "登山杖的碳素杖尖在石头上划出刺耳的“滋滋”声。你把全身重量都压在仗上，好在这对国产杖还算争气，没给你掉链子。这种省力的技巧让你在乱石中游刃有余。要是这时候杖断了，你就得爬着走了。\n(状态反馈：饱食度 -15)",
     bg: "loc_stone_sea",
     choices: [
       {
-        text: "拄着杖继续走",
+        text: "感谢仗，继续走",
         target: "node_penjing",
       },
     ],
@@ -297,21 +340,28 @@ export const mapScenes: Record<string, Scene> = {
 
   node_penjing: {
     id: "node_penjing",
-    text: "鳌太山脊在这里拐了个大弯。这里有信号，可以给家人报个平安。下方深沟里似乎隐约有水源的反光。",
+    text: "这里是盆景园，鳌太山脊在这里拐了个大弯。光秃秃的石头缝里长着形态各异的太白红杉，像极了那个看大门的秦大爷养的盆景。这里有微弱的信号，也许是此行最后一次联系外界的机会。",
+    roleText: {
+      student:
+        "终于有信号了！虽然只有一格4G，但足够你发个定位装X了。微信群里朋友们问你“还好吗”，你犹豫了一秒，回了个“稳”。",
+      doctor:
+        "看着这些扭曲的树木，你不仅感叹生命的顽强。在大自然的手术台上，只有最坚韧的物种才能存活。下方深沟里似乎有反光，可能是水源。",
+    },
     bg: "loc_penjing",
+    progress: 40,
     choices: [
       {
-        text: "给家人打电话",
+        text: "赶紧给家里打个电话报平安",
         target: "node_penjing_call_feedback",
         cost: { sanity: -20 },
       },
       {
-        text: "下沟取水",
+        text: "别浪费时间，下沟找水",
         target: "node_penjing_gully",
         cost: { hunger: 5 },
       },
       {
-        text: "继续赶路",
+        text: "信号算个屁，继续赶路",
         target: "node_penjing_hike_feedback",
         cost: { hunger: 15, hp: 5 },
       },
@@ -370,12 +420,18 @@ export const mapScenes: Record<string, Scene> = {
 
   node_baiqi_start: {
     id: "node_baiqi_start",
-    text: "经过白起庙。线路从北往南折而向东。草甸上路径明显，一条道通往导航架。虽然要翻越石海，但这片石海经过亿万年沉淀，非常稳固。",
+    text: "这里是白起庙。传说那位杀神曾在此驻足。线路从北往南折而向东。草甸上隐约有条踩出来的小路，通往远处的导航架。虽然要翻越一片石海，但这些石头经过亿万年沉淀，已经咬合得非常稳固了——只要你别踩空。",
+    roleText: {
+      geologist:
+        "典型的第四纪冰川遗迹。这些石头都是角砾岩，这种稳固的堆叠结构叫做“石河”。对你来说，这是一条天然的高速公路。",
+      poet: "白起庙，一个充满杀气的名字。石头上斑驳的苔藓像是凝固的时间。你走在古人的传说和今人的足迹之间，感到一阵莫名的悲凉。",
+    },
     bg: "loc_ridge",
+    progress: 45,
     choices: [
       {
-        text: "轻松翻越石海",
-        target: "node_baiqi_middle", // Added intermediate node logic back from 2f007a7 but simplified to target nav_stand if middle missing? No, 2f007a7 had node_baiqi_middle. I'll include it.
+        text: "这片石海我熟，走起",
+        target: "node_baiqi_middle",
         cost: { hunger: 5 },
       },
     ],
@@ -425,16 +481,23 @@ export const mapScenes: Record<string, Scene> = {
 
   node_nav_stand: {
     id: "node_nav_stand",
-    text: "鳌山导航架位居路径右侧。切记：直走是往23公里下山的错误死路！对着左前方那面蓝色旗子走，途径药王庙（供奉着孙思邈），才是正路。",
+    text: "终于到了鳌山导航架！这可是鳌太线标志性的打卡点。但别高兴太早，这里也是无数新人“梦碎”的地方。切记：直走那条看似宽阔的大路是往23公里下山的死路！对着左前方那面褪色的蓝旗走，那才是药王庙的方向。",
+    roleText: {
+      student:
+        "这就是传说中的导航架！必须合影留念。至于路嘛... 轨迹上说往左切。虽然直走的路看起来很诱人，但听人劝吃饱饭。",
+      veteran:
+        "你扫了一眼地形。直走的路虽然好走，但方位角不对。你掏出指北针确认了一下，左偏30度才是正途。永远不要被表象迷惑。",
+    },
     bg: "loc_nav_stand",
+    progress: 50,
     choices: [
       {
-        text: "向左切，对准蓝旗方向",
+        text: "向左切，寻找那面蓝旗",
         target: "node_nav_left_feedback",
         cost: { hunger: 5 },
       },
       {
-        text: "迷信直觉，直走",
+        text: "相信直觉，大路肯定没问题（迷信直觉）",
         target: "end_lost_23km",
         cost: { hunger: 20, sanity: 20 },
       },
@@ -457,16 +520,22 @@ export const mapScenes: Record<string, Scene> = {
 
   node_maijie_descent: {
     id: "node_maijie_descent",
-    text: "经过两座巨石阵，前方就是麦秸岭。远看险恶石海陈列，近看右侧有兽道。这是第一道“拦路虎”。",
+    text: "过了两座巨石阵，前面就是令人闻风丧胆的麦秸岭。远看像是一排排巨大的石兽，近看... 还是石兽。右侧隐约有羚牛走过的痕迹，那是传说中的“兽道”。",
+    roleText: {
+      runner:
+        "这是个技术路段。走兽道能省很多体力，但要注意别崴脚。你收起登山杖，准备快速通过。",
+      poet: "麦秸岭，名字听起来像丰收的农田，实则是寸草不生的荒原。巨大的石头像墓碑一样矗立，沉默地注视着每一个在此挣扎的灵魂。",
+    },
     bg: "loc_ridge",
+    progress: 60,
     choices: [
       {
-        text: "沿着羚牛兽道右切",
+        text: "跟着羚牛的脚印右切（走兽道）",
         target: "node_maijie_path_feedback",
         cost: { hunger: 5 },
       },
       {
-        text: "强行翻越石海",
+        text: "我是硬汉，直接翻石海！",
         target: "node_maijie_climb_feedback",
         cost: { hunger: 20, hp: 15, sanity: 5 },
       },
@@ -506,6 +575,7 @@ export const mapScenes: Record<string, Scene> = {
       fog: "除了脚下的那一小块石头，你什么都看不见。世界是一片白色的虚无，左边是悬崖，右边也是悬崖。恐惧来自于未知。",
     },
     bg: "loc_knife_ridge",
+    progress: 63, // [NEW]
     choices: [
       {
         text: "长舒一口气，滑下碎石坡",
@@ -529,23 +599,29 @@ export const mapScenes: Record<string, Scene> = {
 
   node_shuiwozi_source: {
     id: "node_shuiwozi_source",
-    text: "下到底就是水窝子垭口。这片大草地适合扎营但没水。直走上飞机梁，左侧下沟则是水窝子营地。",
+    text: "下到底就是水窝子垭口。这里是最大的露营地，也是著名的“补给站”。草地上散落着不知哪年留下的气罐。往左下沟是水源，往上直走是将要面对的飞机梁。",
+    roleText: {
+      geologist:
+        "这里的地形是一个典型的鞍部，风口效应明显。晚上的风会很大，扎营通过必须要打好风绳，压好石头。",
+      porter:
+        "到了这儿，我就知道哪里有水。左边沟里，那个出水量大得很。老一辈背夫都在这儿歇脚。",
+    },
     bg: "loc_spring_water",
     choices: [
       {
-        text: "左下切去营地取水",
+        text: "没水了，左下切去营地取水",
         target: "node_shuiwozi_descent_success_feedback",
         cost: { hunger: 5 },
-        condition: "shuiwozi_water", // Show if water exists
+        condition: "shuiwozi_water",
       },
       {
-        text: "左下切去营地",
+        text: "去营地碰碰运气（可能干涸）",
         target: "node_shuiwozi_descent_fail_feedback",
         cost: { hunger: 10, sanity: 5 },
-        condition: "!shuiwozi_water", // Show if dry
+        condition: "!shuiwozi_water",
       },
       {
-        text: "垭口无水扎营",
+        text: "太累了，垭口无水强行扎营",
         target: "node_shuiwozi_pass_camp_feedback",
         cost: { hunger: 10, sanity: 10 },
       },
@@ -592,6 +668,7 @@ export const mapScenes: Record<string, Scene> = {
     id: "node_shuiwozi_camp",
     text: "下午14:20，到达水窝子营地。左下方有巨大的水源。如果在营地扎营，明天有小路可直上飞机梁，不必折返爬坡。",
     bg: "loc_camp",
+    progress: 68, // [NEW]
     choices: [
       {
         text: "扎营休整 (左下取水)",
@@ -630,31 +707,44 @@ export const mapScenes: Record<string, Scene> = {
 
   node_plane_wreck: {
     id: "node_plane_wreck",
-    text: "爬上飞机梁，你看到了一些战机残骸和遇难山友的纪念碑。接下来要连续过三个梁。这是挑战心理的一段路。",
+    text: "终于爬上了飞机梁。这里散落着二战时期的美军运输机残骸，锈迹斑斑的铝合金板在风中呜咽。旁边还有一座遇难山友的玛尼堆，提醒着这里曾发生过的悲剧。",
+    roleText: {
+      veteran:
+        "看着这些残骸，你依稀能辨认出机翼的结构。在这个高度坠机，没人能生还。你默默敬了个礼，既是给前辈军人，也是给遇难的山友。",
+      photographer:
+        "虽然有些冒犯，但残骸、荒原、玛尼堆，这种画面极具张力。你调整光圈，拍下了一张名为《归宿》的照片。",
+    },
     bg: "loc_plane_wreck",
+    progress: 72,
     choices: [
       {
-        text: "查看残骸与纪念碑",
+        text: "祭拜并在残骸附近搜寻",
         target: "node_liang1",
         cost: { sanity: 5 },
         action: "loot_supplies",
       },
-      { text: "不看，直接前往梁1", target: "node_liang1" },
+      { text: "不去打扰亡灵，直接赶路", target: "node_liang1" },
     ],
   },
 
   node_liang1: {
     id: "node_liang1",
-    text: "左切。遇到一个一人高的台阶，踏脚处仅有四五十厘米，左边就是悬崖。这对于重装驴友是极大的心理考验。",
+    text: "左切。遇到一个一人高的台阶，踏脚处仅有四五十厘米，左边就是悬崖。这通常是重装驴友的噩梦，但也是检验你胆量的时候。",
+    roleText: {
+      geologist:
+        "岩层结构稳定，虽然看起来吓人，但只要重心靠内贴紧岩壁，摩擦力足够支撑你的体重。这是一个纯粹的物理问题。",
+      student:
+        "看着脚下的悬崖，你的腿有点抖。但想到回去能跟兄弟们吹这就像《古墓丽影》现场，你咬着牙迈出了第一步。",
+    },
     bg: "loc_stone_sea",
     choices: [
       {
-        text: "克服恐惧，小心攀登",
+        text: "心一横，上！",
         target: "node_liang2",
         cost: { hunger: 10, sanity: -5 },
       },
       {
-        text: "腿软，在同伴/意念帮助下通过",
+        text: "腿软了，必须有人拉一把",
         target: "node_liang2",
         cost: { hunger: 10, sanity: 10 },
       },
@@ -663,23 +753,28 @@ export const mapScenes: Record<string, Scene> = {
 
   node_liang2: {
     id: "node_liang2",
-    text: "岔路口。左切是先下一个2米深的陡坡滑下去，再拔高；右切则是横穿一片稳固的石海。两条路殊途同归。",
+    text: "到了岔路口。左边是陡坡，看起来像是坐滑梯但是是碎石做的；右边是石海，稳固但费鞋。两条路殊途同归，怎么选都是受罪。",
+    roleText: {
+      runner:
+        "下陡坡？那不就是下坡跑技术路面吗？这是你的强项。只要控制好重心，几秒钟就能滑下去。",
+    },
     bg: "loc_stone_sea",
+    progress: 76,
     choices: [
       {
-        text: "右切走石海",
+        text: "右边石海（稳健派）",
         target: "node_liang3",
         cost: { hunger: 10 },
         condition: "!liang2_blocked",
       },
       {
-        text: "右切石海 (塌方不可行)",
+        text: "右边石海（塌方不可行）",
         target: "node_stone_sea_climb",
         cost: { hunger: 5, sanity: 5 },
         condition: "liang2_blocked",
       },
       {
-        text: "左切滑下陡坡",
+        text: "左边滑陡坡（莽夫派）",
         target: "node_liang3",
         cost: { hunger: 15, hp: 5 },
       },
@@ -701,11 +796,15 @@ export const mapScenes: Record<string, Scene> = {
 
   node_liang3: {
     id: "node_liang3",
-    text: "继续右切。连过三梁，体能消耗巨大。前方就是今天的营地了。",
+    text: "连过三梁。这不仅仅是体力的消耗，更是对神经的折磨。每一次上下坡都在挑战你的耐性。好在，前方终于看到了2800营地的松林。",
+    roleText: {
+      student:
+        "你感觉自己的腿已经不是腿了，是两根木棍。一边走一边在心里把设计这条路线的人骂了一百遍。不过看到营地的那一刻，真香。",
+    },
     bg: "loc_stone_sea",
     choices: [
       {
-        text: "坚持走到营地",
+        text: "看到松树林了！冲！",
         target: "node_2800",
         cost: { hunger: 10 },
       },
@@ -714,16 +813,21 @@ export const mapScenes: Record<string, Scene> = {
 
   node_2800: {
     id: "node_2800",
-    text: "下午15:00，到达2800营地。这里被誉为“五星级营地”，地势平坦，水源在右侧松树林边。这里是鳌山和太白山的分界线。",
+    text: "下午15:00，抵达2800营地。这简直是鳌太线上的“五星级酒店”。平整的松针地，旁边就有潺潺溪流。阳光透过树梢洒下来，你产生了一种不想走的冲动。",
+    roleText: {
+      gearhead:
+        "这地面太完美了，必须把帐篷搭得板板正正，风绳拉得笔直，这才是专业的露营范儿。今晚必须煮个现磨咖啡庆祝一下。",
+    },
     bg: "loc_forest",
+    progress: 80,
     choices: [
       {
-        text: "扎营",
+        text: "在这里好好睡一觉（扎营）",
         action: "rest",
         target: "node_pyramid_ascent",
       },
       {
-        text: "连夜赶路",
+        text: "我疯了，我要连夜赶路（夜袭）",
         target: "node_fog_entry",
         cost: { sanity: 50 },
       },
@@ -759,11 +863,15 @@ export const mapScenes: Record<string, Scene> = {
 
   node_pyramid: {
     id: "node_pyramid",
-    text: "金字塔顶。远眺前方，塔1、塔2、塔3如恐龙脊背般排列。",
+    text: "金字塔顶。这里是视野最开阔的地方。前方，塔1、塔2、塔3像巨龙的脊背一样起伏，一直延伸到云端。这就是你要征服的路。",
+    roleText: {
+      poet: "站在塔尖，仿佛伸手就能碰到天。群山如海浪般在脚下翻涌。你觉得自己渺小如尘埃，又伟大如神祇。",
+    },
     bg: "loc_ridge",
+    progress: 85,
     choices: [
       {
-        text: "向塔1进发",
+        text: "整理装备，向塔1进发",
         target: "node_ta1",
         cost: { hunger: 5 },
       },
@@ -772,11 +880,15 @@ export const mapScenes: Record<string, Scene> = {
 
   node_ta1: {
     id: "node_ta1",
-    text: "塔1。巨石林立，路窄且滑。",
+    text: "这就是塔1。巨石如同从天而降的陨石阵。路很窄，很多时候只能容下一只脚。石头上湿漉漉的青苔仿佛在引诱你滑倒。",
+    roleText: {
+      photographer:
+        "这里的石头纹理太美了，充满力量感。虽然危险，但你还是忍不住想掏出相机拍一张“悬崖边的一只脚”。",
+    },
     bg: "loc_ridge",
     choices: [
       {
-        text: "小心通过",
+        text: "像踩钢丝一样通过",
         target: "node_ta2",
         cost: { hunger: 8, hp: 2 },
       },
@@ -785,11 +897,16 @@ export const mapScenes: Record<string, Scene> = {
 
   node_ta2: {
     id: "node_ta2",
-    text: "塔2。需要在乱石中寻找路标。",
+    text: "塔2。这里的路标非常稀少，常常需要在乱石中寻找前人留下的红油漆点。一阵云雾飘过，路标就可能消失不见。",
+    roleText: {
+      veteran:
+        "在没有路标的时候，直觉和经验就是最好的向导。你仔细分辨着石头上微妙的磨损痕迹——那是无数双登山鞋踩出来的“路”。",
+    },
     bg: "loc_ridge",
+    progress: 92,
     choices: [
       {
-        text: "顶风翻越",
+        text: "在云雾中摸索前进",
         target: "node_ta3",
         cost: { hunger: 10, hp: 5 },
       },
@@ -798,17 +915,22 @@ export const mapScenes: Record<string, Scene> = {
 
   node_ta3: {
     id: "node_ta3",
-    text: "塔3。如果西源营地没水，后果不堪设想。是否下路取水？",
+    progress: 95,
+    text: "终于到了塔3。这里有个关键决策：前方的西源营地是旱季经常干涸的。如果没水，今晚会非常难熬。是否现在下沟取水背过去？",
+    roleText: {
+      gearhead:
+        "看了看背包里的MSR水袋，还有容量。虽然背水会让负重增加3公斤，但在这个海拔缺水可是会要命的。专业玩家从不赌博。",
+    },
     bg: "loc_spring_water",
     choices: [
       {
-        text: "下撤取水背负",
+        text: "稳一点，下撤取水背负",
         action: "loot_supplies",
         target: "node_ta3_loot_feedback",
         cost: { hunger: 15, hp: 5 },
       },
       {
-        text: "赌西源有水，直接走",
+        text: "赌一把！西源肯定有水",
         target: "node_ta3_gamble_feedback",
         cost: { hunger: 5 },
       },
@@ -841,16 +963,16 @@ export const mapScenes: Record<string, Scene> = {
 
   node_xiyuan: {
     id: "node_xiyuan",
-    text: "西源营地。干涸的河床在夕阳下通红。",
+    text: "西源营地。夕阳下的河床干得裂开了嘴，像是在嘲笑你的天真。红色的石头在余晖中显得格外诡异。",
     bg: "loc_camp",
     choices: [
       {
-        text: "因为背了水，安心扎营",
+        text: "我有水我自豪，扎营",
         action: "rest",
         target: "node_stone_sea_9",
       },
       {
-        text: "没水，强行翻九重石海",
+        text: "真没水... 只能硬扛翻九重石海了",
         target: "node_stone_sea_9",
         cost: { hunger: 30, sanity: 20, hp: 10 },
       },
@@ -859,16 +981,20 @@ export const mapScenes: Record<string, Scene> = {
 
   node_stone_sea_9: {
     id: "node_stone_sea_9",
-    text: "第五天全是石头。九重石海，那种地狱般的折磨。",
+    text: "第五天，九重石海。这不是一个修辞手法，是真的有九层。每一层都是无尽的乱石，爬上一层，发现还有一层，足以让人绝望。",
+    roleText: {
+      athlete:
+        "这种重复的高强度攀爬是检验体能的最佳试金石。你调整呼吸，把这当成一次高强度的台阶训练。你的大腿像两台永动机。",
+    },
     bg: "loc_stone_sea_giant_ship",
     choices: [
       {
-        text: "机械地向上攀爬",
+        text: "像僵尸一样机械攀爬",
         target: "node_stone_sea_climb_feedback",
         cost: { hunger: 10 },
       },
       {
-        text: "[运动员] 爆发式匀速攀登",
+        text: "[运动员] 开启暴走模式",
         requiredRole: "athlete",
         target: "node_stone_sea_climb_feedback",
         cost: { hunger: 5 }, // Efficient
@@ -891,11 +1017,15 @@ export const mapScenes: Record<string, Scene> = {
 
   node_dashihe: {
     id: "node_dashihe",
-    text: "大石河。流水声简直是世界上最美妙的音乐。",
+    text: "终于听到了水声！大石河！这声音在此时此刻，比贝多芬的交响乐还要动听。清澈的河水在那儿流淌，像是生命的源泉。",
+    roleText: {
+      poet: "流水不腐，户枢不蠹。看着奔流不息的河水，你觉得自己的生命力也被重新点燃了。这是大山的馈赠。",
+    },
     bg: "loc_camp",
+    progress: 98,
     choices: [
       {
-        text: "狂饮河水，扎营",
+        text: "不管三七二十一，狂饮！",
         action: "rest",
         target: "node_dashihe_drink_feedback",
       },
@@ -916,11 +1046,12 @@ export const mapScenes: Record<string, Scene> = {
 
   node_wanxian: {
     id: "node_wanxian",
-    text: "早晨出发，走过万仙阵，前方就是太白最高峰——拔仙台。",
+    text: "清晨出发，穿过万仙阵。这是一个巨大的石阵，传说也是神仙摆下的阵法。前方，太白山的最高峰——拔仙台，已经清晰可见。",
     bg: "loc_wanxian",
+    progress: 99,
     choices: [
       {
-        text: "前行",
+        text: "最后冲刺，向顶峰进发",
         target: "node_summit_fork",
         cost: { hunger: 5 },
       },
@@ -929,16 +1060,22 @@ export const mapScenes: Record<string, Scene> = {
 
   node_summit_fork: {
     id: "node_summit_fork",
-    text: "岔路口。左边去大爷海，右边去拔仙台顶峰。",
+    text: "终于到了最后的岔路口。左边是神圣的大爷海，右边是太白之巅拔仙台。身体已经到了极限，每一步都要付出极大的意志力。",
+    roleText: {
+      student:
+        "必须登顶啊！如果不去最高点，回去怎么跟同学吹牛？哪怕爬也要爬上去！",
+      veteran:
+        "登顶只是一种仪式，平安回家才是目的。不过，既然到了这里，不上去看看终究会遗憾。",
+    },
     bg: "loc_ridge",
     choices: [
       {
-        text: "右转登顶",
+        text: "用最后的力气，登顶拔仙台！",
         target: "node_summit_fork_climb_feedback",
         cost: { hunger: 10, hp: 5 },
       },
       {
-        text: "直奔大爷海",
+        text: "太累了，直奔大爷海躺平",
         target: "node_summit_fork_skip_feedback",
         cost: { hunger: 5 },
       },
@@ -971,20 +1108,34 @@ export const mapScenes: Record<string, Scene> = {
 
   node_baxiantai: {
     id: "node_baxiantai",
-    text: "拔仙台。海拔3767.2米。秦岭之巅。",
+    text: "拔仙台。海拔3767.2米。你站在了秦岭之巅，关中平原尽收眼底。此刻，所有的痛苦、疲惫、恐惧都烟消云散，只剩下纯粹的喜悦和宁静。",
     weatherText: {
       storm:
-        "海拔3767.2米。没有云海，只有呼啸的死神。这里是生命的禁区。你必须立刻下撤，否则会被冻成冰雕。",
+        "这里是生命的禁区。狂风怒号，像是在驱赶入侵者。没有风景，只有死神在耳边低语。必须立刻下撤！",
       sunny:
-        "海拔3767.2米。秦岭之巅。脚下的云海波澜壮阔，金色的阳光洒满全身。这一刻，你觉得自己是世界的主宰。",
+        "云海在脚下翻腾，金色的阳光给每一块石头都镀上了金边。你张开双臂，拥抱这片天地。这是只属于勇敢者的奖赏。",
     },
     bg: "loc_baxiantai_ruins",
     choices: [
       {
-        text: "下撤",
+        text: "拍照留念，迅速下撤",
         target: "node_daye_lake",
       },
+      {
+        text: "拿出那块奇怪的怀表...",
+        target: "end_hidden",
+        cost: { sanity: -100 },
+        condition: "hasItem:relic_watch",
+      },
     ],
+  },
+
+  end_hidden: {
+    id: "end_hidden",
+    text: "【轮回】\n你拿出了那块停摆的怀表。指针突然开始疯狂倒转。周围的风雪停滞了，云海凝固了。你感到在这个维度里的肉体正在消散...\n当你再次睁眼，也许一切才刚刚开始。",
+    bg: "bg_fog", // Mysterious
+    progress: 100, // [NEW]
+    choices: [{ text: "开始新的轮回", action: "restart" }],
   },
 
   node_daye_lake: {
@@ -1149,6 +1300,7 @@ export const mapScenes: Record<string, Scene> = {
     id: "end_game_cleared",
     text: "在车上沉沉睡去。鳌太，不再是一个地名，而成了你生命中的一部分勋章。",
     bg: "bg_sunny",
+    progress: 100, // [NEW]
     choices: [{ text: "旅途圆满结束", action: "restart" }],
   },
 
@@ -1158,6 +1310,7 @@ export const mapScenes: Record<string, Scene> = {
     id: "end_success",
     text: "【小鳌太完成】\n虽然没有走完全程，但能安全出山已是胜利。缆车下山的那一刻，看着脚下的万丈深渊，你庆幸自己活着。",
     bg: "bg_sunny",
+    progress: 100, // [NEW]
     choices: [{ text: "徒步结束", action: "restart" }],
   },
   end_retreat: {
@@ -1168,27 +1321,27 @@ export const mapScenes: Record<string, Scene> = {
   },
   dead_001: {
     id: "dead_001",
-    text: "【长眠大山】你的意识逐渐模糊... 身体不再寒冷，反而感到一丝温暖。在这片无人区，你成为了大山的一部分。",
+    text: "【长眠大山】\n你的意识逐渐模糊... 身体不再寒冷，反而感到一丝久违的温暖。你仿佛看到了远处的灯火，看到了家人的笑脸。你累了，只想睡一会儿。在这片无人区，你成为了大山的一部分，永远地留在了这里。",
     bg: "bg_snow",
-    choices: [{ text: "徒步结束", action: "restart" }],
+    choices: [{ text: "尘归尘，土归土", action: "restart" }],
   },
   dead_starve: {
     id: "dead_starve",
-    text: "【饥饿】干粮早已吃完，你已经一天多没有进食了。肚子里像有一团火在烧，四肢越来越无力。最后，你倒在了茫茫石海中，再也无法站起来。",
+    text: "【饥饿】\n干粮早已吃完，你已经在这个荒原上游荡了太久。胃部剧烈的痉挛早已停止，取而代之的是虚无的空洞。你看着手里最后一点饼干屑，想把它送进嘴里，却连抬手的力气都没有了。",
     bg: "bg_snow",
-    choices: [{ text: "徒步结束", action: "restart" }],
+    choices: [{ text: "来世再做个饱死鬼", action: "restart" }],
   },
   dead_cold: {
     id: "dead_cold",
-    text: "【失温】核心体温降低，你开始出现幻觉，感到异常燥热而脱去了衣服... 最后的微笑凝固在嘴角。",
+    text: "【失温】\n好热... 为什么会这么热？你开始胡乱地撕扯衣服，想要散去体内的燥热。你不知道，這是生命的假象，是死神最后的仁慈。你赤裸着躺在雪地里，嘴角带着微笑，像个婴儿一样睡着了。",
     bg: "bg_storm",
-    choices: [{ text: "徒步结束", action: "restart" }],
+    choices: [{ text: "温暖地睡去", action: "restart" }],
   },
   dead_sanity: {
     id: "dead_sanity",
-    text: "【崩溃】无尽的黑暗和风声击垮了你的意志。你开始胡言乱语，冲向了悬崖...",
+    text: "【崩溃】\n不要... 别过来！风声变成了尖叫，树影变成了鬼魅。无尽的黑暗吞噬了你的理智。你开始疯狂地奔跑，想要逃离这个地狱，直到脚下一空，坠入了万丈深渊。",
     bg: "bg_fog",
-    choices: [{ text: "徒步结束", action: "restart" }],
+    choices: [{ text: "终于解脱了", action: "restart" }],
   },
   end_lost_23km: {
     id: "end_lost_23km",

@@ -39,6 +39,15 @@
         </view>
         <text class="value">{{ Math.floor(sanity) }}</text>
       </view>
+
+      <!-- 进度条 [NEW] -->
+      <view class="bar-row">
+        <text class="icon">🏔️</text>
+        <view class="progress-bg">
+          <view class="progress-fill progress-fill-cyan" :style="{ width: progress + '%' }"></view>
+        </view>
+        <text class="value">{{ progress }}%</text>
+      </view>
     </view>
   </view>
 </template>
@@ -51,8 +60,9 @@ const gameStore = useGameStore();
 
 const hp = computed(() => gameStore.status.hp);
 const hunger = computed(() => gameStore.status.hunger);
-const sanity = computed(() => gameStore.status.sanity || 0); // Safety check
+const sanity = computed(() => gameStore.status.sanity || 0);
 const days = computed(() => gameStore.player.days);
+const progress = computed(() => Math.floor(gameStore.progress || 0)); // Fixed: progress is on root state
 const weatherInfo = computed(() => gameStore.currentWeatherInfo);
 </script>
 
@@ -61,34 +71,35 @@ const weatherInfo = computed(() => gameStore.currentWeatherInfo);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20rpx 30rpx;
-  padding-top: calc(20rpx + var(--status-bar-height)); // Safe area support
-  padding-right: 140rpx; // Avoid overlap with Bag Button (top-right)
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%); // Gradient fade instead of hard block
-  backdrop-filter: none; // Remove blur for cleaner look on gradient
-  border-bottom: none;
+  padding: 10rpx 20rpx 10rpx; // Reduced vertical padding further
+  padding-top: calc(10rpx + var(--status-bar-height));
+  padding-right: 180rpx; // Increased to safe zone (30rpx right + ~120rpx btn width + buffer)
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 100;
-  box-sizing: border-box;
+  pointer-events: none;
+  box-sizing: border-box; // [CRITICAL] Restore this so padding constrains width
 }
 
 .info-group {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: 2rpx;
+  width: 110rpx; // Slightly reduced
+  flex-shrink: 0;
 }
 
 .day-indicator {
   .day-text {
-    font-size: 36rpx; // Larger
+    font-size: 32rpx;
     font-weight: 900;
     color: #fff;
     font-family: monospace;
     letter-spacing: 2rpx;
-    text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.8);
   }
 }
 
@@ -98,65 +109,66 @@ const weatherInfo = computed(() => gameStore.currentWeatherInfo);
   gap: 8rpx;
 
   .weather-icon {
-    font-size: 28rpx;
+    font-size: 26rpx;
   }
 
   .weather-name {
-    font-size: 24rpx;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.5);
+    font-size: 22rpx;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.8);
   }
 }
 
 .bars-container {
   flex: 1;
-  margin: 0 40rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
+  margin-left: 10rpx; // Reduced margin
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12rpx; // Tighter gap
+  row-gap: 6rpx;
 }
 
 .bar-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 8rpx;
 
   .icon {
-    font-size: 24rpx;
+    font-size: 20rpx;
     color: #eee;
-    width: 30rpx;
+    width: 24rpx;
     text-align: center;
     text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.5);
   }
 
   .value {
-    font-size: 22rpx;
+    font-size: 20rpx;
     color: #fff;
-    width: 50rpx;
+    width: 40rpx;
     text-align: right;
     font-weight: bold;
+    font-family: monospace;
     text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.5);
   }
 }
 
 .progress-bg {
   flex: 1;
-  height: 12rpx;
-  background: rgba(0, 0, 0, 0.5); // Darker background for contrast
-  border-radius: 6rpx;
+  height: 8rpx; // Thinner bars (was 12)
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4rpx;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .progress-fill {
   height: 100%;
-  border-radius: 6rpx;
+  border-radius: 4rpx;
   transition: width 0.3s ease-out;
 }
 
 .hp-fill {
   background: linear-gradient(90deg, #ff4d4d, #ff1a1a);
-  box-shadow: 0 0 10rpx rgba(255, 26, 26, 0.5);
 }
 
 .hunger-fill {
@@ -165,6 +177,9 @@ const weatherInfo = computed(() => gameStore.currentWeatherInfo);
 
 .sanity-fill {
   background: linear-gradient(90deg, #b100ff, #7f00ff);
-  box-shadow: 0 0 10rpx rgba(127, 0, 255, 0.5);
+}
+
+.progress-fill-cyan {
+  background: linear-gradient(90deg, #00d2ff, #3a7bd5);
 }
 </style>

@@ -21,4 +21,6 @@ export interface Scene {
   type?: "normal" | "loot" | "event";
   weatherText?: Record<string, string>; // Key: WeatherType (sunny, storm, etc.)
   safe?: boolean; // If true, no random events will occur when transitioning to this scene
+  progress?: number; // [NEW] Trip progress percentage (0-100)
+  roleText?: Record<string, string>; // [NEW] Role-specific text overrides
 }

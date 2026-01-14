@@ -20,6 +20,7 @@ export interface Item {
   stackable?: boolean;
   effect?: ItemEffect;
   stats?: ItemStats;
+  weight: number; // Weight in kg
 }
 
 export const items: Record<string, Item> = {
@@ -29,6 +30,7 @@ export const items: Record<string, Item> = {
     description: "一瓶500ml的矿泉水，虽然冰冷但能解渴。",
     type: "consumable",
     icon: "💧",
+    weight: 0.5,
     effect: {
       hunger: 5,
       msg: "你喝了一口水，感觉喉咙舒服多了。(饱食+5)",
@@ -40,6 +42,7 @@ export const items: Record<string, Item> = {
     description: "干硬的军用压缩饼干，顶饱但很难吃。",
     type: "consumable",
     icon: "🍪",
+    weight: 0.2,
     effect: {
       hunger: 25,
       msg: "你艰难地咽下饼干，胃里充实了不少。(饱食+25)",
@@ -51,6 +54,7 @@ export const items: Record<string, Item> = {
     description: "止血化瘀的喷雾剂，处理外伤的神器。",
     type: "consumable",
     icon: "💊",
+    weight: 0.1,
     effect: {
       hp: 20,
       msg: "伤口经过处理不再剧烈疼痛。(生命+20)",
@@ -64,6 +68,7 @@ export const items: Record<string, Item> = {
     type: "gear",
     slot: "body",
     icon: "🧥",
+    weight: 0.8,
     stats: { warmth: 15 },
   },
   gear_boots_01: {
@@ -73,6 +78,7 @@ export const items: Record<string, Item> = {
     type: "gear",
     slot: "feet",
     icon: "🥾",
+    weight: 1.2,
     stats: { speed: 10 },
   },
   gear_poles_01: {
@@ -82,6 +88,7 @@ export const items: Record<string, Item> = {
     type: "gear",
     slot: "hand",
     icon: "🦯",
+    weight: 0.5,
     stats: { speed: 5 },
   },
   gear_headlamp_01: {
@@ -91,6 +98,7 @@ export const items: Record<string, Item> = {
     type: "gear",
     slot: "head",
     icon: "🔦",
+    weight: 0.2,
     stats: { warmth: 0 },
   },
   // --- CURSED ITEMS ---
@@ -102,6 +110,7 @@ export const items: Record<string, Item> = {
     type: "tool",
     icon: "⌚",
     stackable: false,
+    weight: 0.1,
     effect: {
       sanity: -5, // Passive drain if used? Or just lore. The logic is in game.ts
       msg: "滴答...滴答...它明明没有走动。",

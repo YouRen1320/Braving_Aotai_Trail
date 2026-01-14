@@ -27,10 +27,18 @@
         "navigationStyle": "custom"
       }
     },
+
     {
       "path": "pages/journal_page",
       "style": {
         "navigationBarTitleText": "探险手记",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/gallery_page",
+      "style": {
+        "navigationBarTitleText": "结局图鉴",
         "navigationStyle": "custom"
       }
     }

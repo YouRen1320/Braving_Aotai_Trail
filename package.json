@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "type-check": "vue-tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -12,7 +13,13 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "luch-request": "^3.1.1",
+    "pinia": "^3.0.4",
     "tailwindcss": "^4.1.18",
     "wot-design-uni": "^1.13.0"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "^3.4.29",
+    "@types/node": "^25.0.8",
+    "vue-tsc": "^3.2.2"
   }
 }
