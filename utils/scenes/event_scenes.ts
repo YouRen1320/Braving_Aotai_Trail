@@ -4,21 +4,27 @@ import type { Scene } from "../types";
 export const eventScenes: Record<string, Scene> = {
   evt_hiker: {
     id: "evt_hiker",
-    text: "浓雾中，你隐约听到前方有呼救声。走近一看，是一个眼神涣散的落单驴友。他说同伴走丢了，自己也没水了。",
+    text: "浓雾中，你隐约听到前方有微弱的呼救声。循着声音走近，一个瑟瑟发抖的身影蜷缩在岩石后。那是个年轻的驴友，眼神涣散，嘴唇冻得发紫。他说他和队友走散了，水也没了。",
+    roleText: {
+      doctor:
+        "通过面色和反应，你一眼就判断出他处于早期失温状态。瞳孔轻微放大，意识虽然清醒但反应迟钝。如果不马上处理，等到核心体温进一步下降，神仙也救不了。",
+      veteran:
+        "这种菜鸟你见多了。没经验、没装备、没体能，典型的“三无人员”。在战场上，这种人是累赘；但在山里，他是一条命。",
+    },
     bg: "evt_rescue_hiker",
     choices: [
       {
-        text: "分他半瓶水",
+        text: "给他半瓶热水",
         cost: { hunger: 10, sanity: -10 },
         target: "node_evt_hiker_share_feedback",
       },
       {
-        text: "自身难保，离开",
+        text: "自身难保，狠心离开",
         cost: { sanity: 10 },
         target: "node_evt_hiker_leave_feedback",
       },
       {
-        text: "尝试帮他求救",
+        text: "尝试帮他联系救援",
         cost: { hp: 20, hunger: 20, sanity: -5 },
         target: "node_evt_hiker_help_feedback",
       },
@@ -33,7 +39,7 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_hiker_share_feedback: {
     id: "node_evt_hiker_share_feedback",
-    text: "你递给他半瓶水。他颤抖着手接过，咕咚咕咚喝下去，眼神终于恢复了一丝光彩。虽然你自己的物资少了，但心里暖暖的。\n(状态反馈：饱食度 -10，理智 +10)", // Fixed sanity cost logic: giving help usually improves mental state or costs it? Original was cost sanity -10 (gain 10).
+    text: "你递给他半瓶珍贵的热水。看着他贪婪地吞咽，喉结剧烈上下滚动，眼里的光慢慢聚了起来。在死亡边缘，一口水就是一条命。虽然你的物资少了，但你觉得背包轻了一些。\n(状态反馈：饱食度 -10，理智 +10)",
     bg: "evt_rescue_hiker",
     choices: [
       {
@@ -45,11 +51,11 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_hiker_leave_feedback: {
     id: "node_evt_hiker_leave_feedback",
-    text: "你狠下心转过头，假装没听见他的哀求。在这样的绝境里，每个人都只能顾好自己。身后的呼救声渐渐被风声淹没。\n(状态反馈：理智 -10)", // Original cost sanity 10 (lose 10)
+    text: "你拉低了帽檐，假装没听见他的哀求，快步走过。风声很大，你想用它掩盖身后的呼救声，但那个声音像针一样扎在你的良心上。在生死面前，自私是本能，也是罪过。\n(状态反馈：理智 -10)",
     bg: "evt_rescue_hiker",
     choices: [
       {
-        text: "加快脚步离开",
+        text: "逃离般的离开",
         target: "resume",
       },
     ],
@@ -57,7 +63,7 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_hiker_help_feedback: {
     id: "node_evt_hiker_help_feedback",
-    text: "你陪他等了许久，终于联系上了他的同伴。在寒风中站立等待让你身体失温，但看到他们团聚的那一刻，一切都值了。\n(状态反馈：生命值 -20，饱食度 -20，理智 +5)",
+    text: "你决定不再赶路，陪他在风雪中等待救援。寒风带走了你大量的热量，你也开始不受控制地发抖。好在，几个小时后救援队终于赶到。看着他被抬上担架，你瘫坐在地上，笑了。\n(状态反馈：生命值 -20，饱食度 -20，理智 +5)",
     bg: "evt_rescue_hiker",
     choices: [
       {
@@ -69,7 +75,7 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_hiker_doctor_feedback: {
     id: "node_evt_hiker_doctor_feedback",
-    text: "你迅速判断出他处于早期失温状态，熟练地进行了复温处理并喂食了葡萄糖。看着他呼吸恢复平稳，职业成就感油然而生。\n(状态反馈：饱食度 -5，理智 +20)",
+    text: "职业本能接管了身体。你迅速扒掉他湿透的外套，用太空毯裹紧，喂食葡萄糖凝胶。一系列操作行云流水。半小时后，他的各项体征趋于平稳。你救回来的不是一个人，而是一个家庭。\n(状态反馈：饱食度 -5，理智 +20)",
     bg: "evt_rescue_hiker",
     choices: [
       {
@@ -80,12 +86,22 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_tent: {
     id: "evt_tent",
-    text: "你发现一顶完好的帐篷搭在路边，但没有任何动静。走近时，心里涌起一股不祥的预感。",
+    text: "路边的碎石上，孤零零地立着一顶橙色帐篷。帐篷外帐已经有些褪色，风吹过时发出哗啦啦的响声。这里不该有营地，周围也没有人声。",
+    roleText: {
+      student:
+        "这场景怎么看都像恐怖片里的开头。你想起网上的那些关于鳌太的诡异传说，后背一阵发凉。",
+      veteran:
+        "看这帐篷的打地钉方式，是个老手。但是帐篷裙边压得不够实，如果是遭遇暴风雪，可能会被掀翻。有点不对劲。",
+    },
     bg: "evt_abandoned_tent",
     choices: [
-      { text: "拉开帐篷查看", target: "evt_tent_result", cost: { sanity: 5 } },
       {
-        text: "多一事不如少一事，离开",
+        text: "壮着胆子拉开查看",
+        target: "evt_tent_result",
+        cost: { sanity: 5 },
+      },
+      {
+        text: "多一事不如少一事，快走",
         target: "node_evt_tent_leave_feedback",
       },
     ],
@@ -93,7 +109,7 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_tent_leave_feedback: {
     id: "node_evt_tent_leave_feedback",
-    text: "好奇心害死猫。你强压下心中的好奇，绕开了那顶帐篷。有时候，不知道真相反而是一种幸福。\n(状态反馈：无变化)",
+    text: "在这个地方，过剩的好奇心往往意味着危险。你选择相信直觉，绕开了那顶诡异的帐篷。有时候，不知道真相反而是一种幸福。\n(状态反馈：无变化)",
     bg: "evt_abandoned_tent",
     choices: [
       {
@@ -110,30 +126,36 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_storm: {
     id: "evt_storm",
-    text: "狂风骤起，暴雪瞬间吞没了视线！这是最危险的时刻。强行赶路极易失温死亡。",
+    text: "天色瞬间暗了下来，气温呈断崖式下跌。狂风卷着冰粒横扫而过，能见度降到了零。即使你穿着冲锋衣，刺骨的寒意依然穿透了身体。",
+    roleText: {
+      geologist:
+        "这是典型的更迭锋面过境。看这云层的厚度和移动速度，这场暴风雪至少会持续6个小时。现在的风速已经超过了8级。",
+      veteran:
+        "这种白毛风是最致命的。一旦停下来，体温流失速度会是平常的五倍。必须立刻找掩体，或者在此地挖掘雪洞。",
+    },
     bg: "bg_storm",
     choices: [
       {
-        text: "强行突围",
+        text: "不管不顾，强行突围",
         cost: { hp: 40, hunger: 20, sanity: 15 },
         target: "node_evt_storm_force_feedback",
       },
       {
-        text: "紧急扎营躲避",
+        text: "找块巨石背风扎营",
         cost: { hunger: 40, sanity: 5 },
         target: "node_evt_storm_camp_feedback",
       },
-      { text: "尝试用卫星电话求救", action: "sos" },
+      { text: "绝望中尝试拨打SOS", action: "sos" },
     ],
   },
 
   node_evt_storm_force_feedback: {
     id: "node_evt_storm_force_feedback",
-    text: "你顶着10级大风在雪地里艰难跋涉，雪粒打在脸上像刀割一样。几次被风吹倒又爬起来，体温在迅速流失。这是一场与死神的赛跑。\n(状态反馈：生命值 -40，饱食度 -20，理智 -15)",
+    text: "你选择了和老天爷硬刚。每迈出一步都要用尽全身力气。好几次你被狂风掀翻在地，又挣扎着爬起来。当你终于走出风圈时，眉毛和睫毛上都结满了冰碴。\n(状态反馈：生命值 -40，饱食度 -20，理智 -15)",
     bg: "bg_storm",
     choices: [
       {
-        text: "死里逃生",
+        text: "命大，继续走",
         target: "resume",
       },
     ],
@@ -141,11 +163,11 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_storm_camp_feedback: {
     id: "node_evt_storm_camp_feedback",
-    text: "你迅速在巨石后扎营。听着外面鬼哭狼嚎的风声，你在睡袋里瑟瑟发抖。虽然又饿又冷，但至少保住了一条命。\n(状态反馈：饱食度 -40，理智 -5)",
+    text: "你迅速躲到一块巨石后面，用最快的速度搭好帐篷钻了进去。外面风声鹤唳，像有无数恶鬼在咆哮。你抱着膝盖，把头埋在两腿之间，祈祷帐篷不要被吹走。\n(状态反馈：饱食度 -40，理智 -5)",
     bg: "bg_storm",
     choices: [
       {
-        text: "风小了，收帐出发",
+        text: "风停了，撤收装备",
         target: "resume",
       },
     ],
@@ -159,12 +181,16 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_ranger: {
     id: "evt_ranger",
-    text: "前方路口出现了几个穿迷彩服的身影——是自然保护区的巡山队！鳌太线全线封禁，你这是在非法穿越。",
+    text: "前方垭口隐约有几个人影。是保护区的巡山队！鳌太线早已全线封禁，抓住就是行政拘留加罚款。你现在的位置很尴尬，似乎被看见了。",
+    roleText: {
+      student:
+        "完了完了，要是被抓了，学校可能会给处分，档案里也会留下一笔。这比遇上野兽还可怕。",
+    },
     bg: "evt_ranger_patrol",
     choices: [
-      { text: "配合执法，接受处罚", target: "end_caught" },
+      { text: "老实认罚，配合执法", target: "end_caught" },
       {
-        text: "趁雾大，冒险绕路躲避",
+        text: "趁着云雾遮挡，钻进树林跑！",
         cost: { hp: 30, hunger: 30, sanity: 15 },
         target: "node_evt_ranger_evade_feedback",
       },
@@ -184,16 +210,22 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_body: {
     id: "evt_body",
-    text: "在一块巨石的缝隙中，你发现了一具蜷缩的遗体。他衣着单薄，似乎生前有“反常脱衣”现象。这残酷的一幕让你不寒而栗。",
+    text: "在一块不起眼的石头缝里，你看到了一抹鲜艳的冲锋衣颜色。走近一看，是一具已经风干的遗体。他蜷缩着，衣衫单薄，脸上甚至带着诡异的微笑——这是典型的“反常脱衣”现象。",
+    roleText: {
+      doctor:
+        "反常脱衣... 这是体温调节中枢失效的标志。大脑产生热的幻觉，死者在最后时刻反而觉得热，脱掉了救命的衣服。",
+      photographer:
+        "死亡在这里如此直白。你没有举起相机，这是一种亵渎。你只是静静地注视着他，仿佛看到了未来的自己。",
+    },
     bg: "evt_frozen_body",
     choices: [
       {
-        text: "搜寻遗物",
+        text: "为了生存，搜寻遗物",
         action: "loot_supplies",
         target: "node_evt_body_loot_feedback",
       },
       {
-        text: "默哀并离开",
+        text: "致敬逝者，默哀离开",
         cost: { hunger: 5, sanity: -10 },
         target: "node_evt_body_mourn_feedback",
       },
@@ -225,11 +257,15 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_takin: {
     id: "evt_takin",
-    text: "一头体型硕大的秦岭羚牛挡在了由独木桥上。它盯着你，鼻孔喷着白气。这种独行公牛极具攻击性。",
+    text: "一头体型像推土机一样的秦岭羚牛挡在了必经之路上。它金毛闪亮，眼睛血红，正死死盯着你，鼻孔里喷着粗气。这是山里的霸主。",
+    roleText: {
+      runner:
+        "不能背对它跑，也不能盯着它的眼睛。慢慢后退，保持距离，寻找爬树或者爬石头的机会。比爆发力，你绝对输。",
+    },
     bg: "evt_takin_beast",
     choices: [
       {
-        text: "原地不动等待",
+        text: "屏住呼吸，原地不动",
         cost: { hunger: 20, sanity: -5 },
         target: "node_evt_takin_wait_feedback",
       },
@@ -266,16 +302,21 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_hallucination_music: {
     id: "evt_hallucination_music",
-    text: "恍惚中，你听到风中传来了秦腔的吼声，高亢激昂。但这里是海拔3000米的无人区，哪来的戏班子？",
+    text: "恍惚中，风声似乎变了调子。你听到了一阵高亢激昂的秦腔，锣鼓喧天。你停下脚步，那声音又消失了；一走动，声音又响起来。在这海拔3000米的无人区，哪来的戏班子？",
+    roleText: {
+      student:
+        "你想起宿舍老三讲过的鬼故事，头皮发麻。但这声音听起来莫名地亲切，像是小时候在大集上听过的。",
+      poet: "这大概就是“大音希声”吧。山风穿过石缝，奏响了天地间的乐章。你愿意相信这是山神在为你送行。",
+    },
     bg: "evt_phantom_opera",
     choices: [
       {
-        text: "停下来仔细听",
+        text: "停下来，沉浸其中",
         cost: { sanity: -10, hunger: 5 },
         target: "node_evt_music_listen_feedback",
       },
       {
-        text: "掐自己一下，清醒过来",
+        text: "狠狠掐自己一下，清醒点！",
         cost: { sanity: 5, hp: 2 },
         target: "node_evt_music_wake_feedback",
       },
@@ -284,11 +325,11 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_music_listen_feedback: {
     id: "node_evt_music_listen_feedback",
-    text: "你坐在石头上，闭上眼睛，那秦腔似乎在诉说着古老的传说。不知过了多久，声音消失了，你感到精神异常放松，仿佛灵魂受到了洗礼。\n(状态反馈：理智 +10，饱食度 -5)",
+    text: "你找了块石头坐下，闭上眼睛。那秦腔愈发清晰，仿佛就在耳边。悲凉、苍劲，每一个音符都敲击着你的灵魂。不知过了多久，声音渐渐停歇，你感到前所未有的平静。\n(状态反馈：理智 +10，饱食度 -5)",
     bg: "evt_phantom_opera",
     choices: [
       {
-        text: "回过神来",
+        text: "如梦初醒，继续赶路",
         target: "resume",
       },
     ],
@@ -296,7 +337,7 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_music_wake_feedback: {
     id: "node_evt_music_wake_feedback",
-    text: "剧痛让你瞬间清醒。哪有什么秦腔，只有风吹过石缝的呜咽声。刚才那是典型的高原缺氧幻觉，太危险了。\n(状态反馈：理智 -5，生命值 -2)",
+    text: "剧烈的疼痛让你瞬间从幻觉中惊醒。风还是那个风，石头还是那个石头。刚才那是典型的高原缺氧幻觉，如果不及时醒来，可能就永远睡过去了。\n(状态反馈：理智 -5，生命值 -2)",
     bg: "evt_phantom_opera",
     choices: [
       {
@@ -307,16 +348,20 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_gear_failure: {
     id: "evt_gear_failure",
-    text: "突然脚下一软，你发现登山鞋的鞋底脱胶了，“张开了大嘴”。这是鳌太路上最令人崩溃的装备故障之一。",
+    text: "走着走着，你突然觉得脚感不对。低头一看，心里“咯噔”一下——登山鞋的鞋底像鳄鱼嘴一样张开了。这是长线徒步中最令人崩溃的装备故障。",
+    roleText: {
+      gearhead:
+        "虽然是Vibram大底，但也经不起这种强度的折磨。幸好你随身带了大力马强度的求生绳，修补这个不在话下。",
+    },
     bg: "evt_broken_shoe",
     choices: [
       {
-        text: "用求生绳绑住",
+        text: "用求生绳做应急捆绑",
         cost: { hunger: 10 },
         target: "node_evt_gear_bind_feedback",
       },
       {
-        text: "拖着鞋走 (极易崴脚)",
+        text: "懒得管，拖着鞋走 (极易崴脚)",
         cost: { hp: 10, hunger: 10 },
         target: "node_evt_gear_drag_feedback",
       },
@@ -325,11 +370,11 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_gear_bind_feedback: {
     id: "node_evt_gear_bind_feedback",
-    text: "你蹲下来，用求生绳一圈圈把鞋底缠紧。虽然样子丑了点，走路也硌脚，但至少不会掉底了。这需要极大的耐心。\n(状态反馈：饱食度 -10)",
+    text: "你卸下背包，找了个避风处蹲下。用求生绳在鞋底缠了“8”字扣，每一圈都勒得死死的。虽然样子像个粽子，走起路以此有点硌脚，但至少安全了。\n(状态反馈：饱食度 -10)",
     bg: "evt_broken_shoe",
     choices: [
       {
-        text: "凑合着走",
+        text: "丑是丑了点，能用就行",
         target: "resume",
       },
     ],
@@ -337,18 +382,22 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_gear_drag_feedback: {
     id: "node_evt_gear_drag_feedback",
-    text: "你懒得处理，拖着张嘴的鞋继续走。结果没走两步就绊了一下，脚踝一阵剧痛。每一步都是折磨。\n(状态反馈：生命值 -10，饱食度 -10)",
+    text: "你心烦意乱，不想停下来处理。结果没走两步，鞋底被石头绊住，脚踝猛地扭了一下。钻心的疼痛让你不得不停下来。早知今日，何必当初。\n(状态反馈：生命值 -10，饱食度 -10)",
     bg: "evt_broken_shoe",
     choices: [
       {
-        text: "一瘸一拐地走",
+        text: "一瘸一拐地继续走",
         target: "resume",
       },
     ],
   },
   evt_trail_angel: {
     id: "evt_trail_angel",
-    text: "在路边的大石头下，你发现了一瓶矿泉水，上面写着“水神赐予后来人”。在这缺水的山脊上，这是无价之宝。",
+    text: "在一块大石头下面，你发现了一个塑料瓶。瓶身很干净，里面装满了清澈的水。瓶身上用记号笔写着：“水神赐予后来人”。",
+    roleText: {
+      photographer:
+        "这瓶水静静地立在那里，像一座微缩的纪念碑。你透过瓶身看过去，变形的景色仿佛变得温柔了起来。",
+    },
     bg: "evt_water_bottle",
     choices: [
       {
@@ -357,7 +406,7 @@ export const eventScenes: Record<string, Scene> = {
         target: "node_evt_angel_drink_feedback",
       },
       {
-        text: "留给更需要的人",
+        text: "我不缺水，留给更需要的人",
         cost: { sanity: -15 }, // Karma boost
         target: "node_evt_angel_leave_feedback",
       },
@@ -366,7 +415,7 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_angel_drink_feedback: {
     id: "node_evt_angel_drink_feedback",
-    text: "你拧开瓶盖，甘甜的水滋润了干裂的嘴唇。你心中默念着感谢那位不知名的好心人。这瓶水不仅解了渴，更给了你继续前行的动力。\n(状态反馈：饱食度 +10，理智 +5)",
+    text: "你拧开瓶盖，水是甜的。你不知道是谁留下的，但这瓶水确实救了你的急。你在心里默默说了声谢谢，把空瓶子收进了垃圾袋。\n(状态反馈：饱食度 +10，理智 +5)",
     bg: "evt_water_bottle",
     choices: [
       {
@@ -378,7 +427,7 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_angel_leave_feedback: {
     id: "node_evt_angel_leave_feedback",
-    text: "你把水瓶放回原处，用石头压好。也许后面还有更绝望的人需要它。虽然口渴难耐，但你觉得自己做了一件伟大的事，灵魂仿佛升华了。\n(状态反馈：理智 +15)", // sanity cost was negative (gain)
+    text: "你把水瓶放回原处，又加固了几块石头防止被风吹走。也许后面有一个比你更绝望的人正在赶来。这种“薪火相传”的感觉让你觉得不仅仅是自己在战斗。\n(状态反馈：理智 +15)",
     bg: "evt_water_bottle",
     choices: [
       {
@@ -389,7 +438,11 @@ export const eventScenes: Record<string, Scene> = {
   },
   evt_lightning: {
     id: "evt_lightning",
-    text: "头皮突然发麻，头发竖了起来，空气中充满了滋滋的电流声！是这雷击的前兆！",
+    text: "突然，你感觉头发全部竖了起来，甚至发出了滋滋的声响。空气中充满了电荷的味道。这是雷击的前兆！几秒钟内必须做出反应！",
+    roleText: {
+      geologist:
+        "尖端放电现象！这里岩石含铁量高，简直就是天然的引雷针。快！扔掉所有金属！",
+    },
     bg: "evt_lightning_hair",
     choices: [
       {
@@ -406,11 +459,11 @@ export const eventScenes: Record<string, Scene> = {
 
   node_evt_lightning_squat_feedback: {
     id: "node_evt_lightning_squat_feedback",
-    text: "你迅速扔掉所有金属物品，抱头蹲在低洼处，尽量减少与地面的接触面积。一道闪电劈在不远处，震耳欲聋。你躲过了一劫。\n(状态反馈：无生命危险)",
+    text: "你把登山杖扔得远远的，像个圆球一样蹲在低洼处，屏住呼吸。在此起彼伏的雷声中，你觉得自己像只渺小的蚂蚁。万幸，雷电没有选中你。\n(状态反馈：无生命危险)",
     bg: "evt_lightning_hair",
     choices: [
       {
-        text: "等待雷雨云飘过",
+        text: "腿都软了，等待云团飘过",
         target: "resume",
       },
     ],
@@ -467,6 +520,110 @@ export const eventScenes: Record<string, Scene> = {
       },
     ],
   },
+  // [NEW] Event: Thin Ice
+  evt_thin_ice: {
+    id: "evt_thin_ice",
+    text: "前方的一条山涧结了冰，这是必经之路。但冰面看起来很薄，如果背着太重的东西，可能会有危险。",
+    bg: "evt_thin_ice",
+    choices: [
+      {
+        text: "如履薄冰地通过 (高负重极险)",
+        action: "check_ice_risk", // New action
+      },
+      {
+        text: "扔掉一些重物再过",
+        action: "discard_heavy", // New action
+      },
+      {
+        text: "绕路 (消耗大量时间)",
+        cost: { hunger: 30, hp: 10 },
+        target: "node_evt_ice_detour_feedback",
+      },
+    ],
+  },
+  node_evt_ice_success: {
+    id: "node_evt_ice_success",
+    text: "冰面发出了令人牙酸的“嘎吱”声，你屏住呼吸，尽量放轻脚步。好在有惊无险，你安全到达了对岸。\n(状态反馈：安全通过)",
+    bg: "evt_thin_ice",
+    choices: [{ text: "继续前行", target: "resume" }],
+  },
+  node_evt_ice_fail: {
+    id: "node_evt_ice_fail",
+    text: "“咔嚓”一声，脚下的冰面突然碎裂！你掉进了刺骨的冰水中。虽然挣扎着爬了上来，但全身湿透，体温急剧下降。\n(状态反馈：生命值 -40，理智 -20)",
+    bg: "evt_thin_ice",
+    choices: [{ text: "瑟瑟发抖地爬起来", target: "resume" }], // cost applied in action
+  },
+  node_evt_ice_discard_feedback: {
+    id: "node_evt_ice_discard_feedback",
+    text: "你忍痛将背包里最重的几样东西留在了岸边。身轻如燕的你顺利通过了冰面。活着比什么都重要。\n(状态反馈：失去随机物品)",
+    bg: "evt_thin_ice",
+    choices: [{ text: "含泪告别物资", target: "resume" }],
+  },
+  node_evt_ice_detour_feedback: {
+    id: "node_evt_ice_detour_feedback",
+    text: "为了安全，你选择了绕过这段冰面。这多花了你两个小时，还在乱石堆里磨破了皮，但至少没有掉进水里。\n(状态反馈：饱食度 -30，生命值 -10)",
+    bg: "evt_thin_ice",
+    choices: [{ text: "疲惫地回到主路", target: "resume" }],
+  },
+  // [NEW] Event: Sheltered Cave (Rest Stop)
+  evt_shelter_cave: {
+    id: "evt_shelter_cave",
+    text: "你在巨石下方发现了一个干燥避风的岩洞。这里没有积雪，温度也比外面高不少。是个难得的天然庇护所。",
+    bg: "evt_shelter_cave", // Assuming we use a generic bg or create one later
+    choices: [
+      {
+        text: "深度休整 (生火做饭睡一觉)",
+        cost: { hunger: 30 }, // High hunger cost
+        target: "node_evt_cave_sleep_feedback",
+      },
+      {
+        text: "小憩片刻 (喝口水缓口气)",
+        cost: { hunger: 5 },
+        target: "node_evt_cave_rest_feedback",
+      },
+      {
+        text: "不休息，趁天色早继续赶路",
+        target: "node_evt_cave_leave_feedback",
+      },
+    ],
+  },
+  node_evt_cave_sleep_feedback: {
+    id: "node_evt_cave_sleep_feedback",
+    text: "你煮了一锅热腾腾的面条吃下，然后钻进睡袋睡了一个小时。醒来时，体能和精神都恢复到了极佳状态。\n(状态反馈：生命值 +10，理智 +20)",
+    bg: "evt_shelter_cave",
+    choices: [
+      {
+        text: "生龙活虎地出发",
+        // Logic for healing is handled by negative cost in scene definition?
+        // Wait, current system handles positive cost as deduction.
+        // I need to use negative values for gain?
+        // Let's check `game.ts` `applyCost`.
+        // `applyCost` logic: `this.status.hp -= cost.hp || 0;`
+        // So `cost: { hp: -10 }` means `hp -= -10` => `hp += 10`.
+        // Yes.
+        cost: { hp: -10, sanity: -20 },
+        target: "resume",
+      },
+    ],
+  },
+  node_evt_cave_rest_feedback: {
+    id: "node_evt_cave_rest_feedback",
+    text: "你卸下背包，靠在岩壁上休息了片刻，吃了一块巧克力。紧绷的神经稍微放松了一些。\n(状态反馈：理智 +5)",
+    bg: "evt_shelter_cave",
+    choices: [
+      {
+        text: "起身出发",
+        cost: { sanity: -5 },
+        target: "resume",
+      },
+    ],
+  },
+  node_evt_cave_leave_feedback: {
+    id: "node_evt_cave_leave_feedback",
+    text: "你担心天气变化，决定不在此停留。虽然身体很累，但你的意志力推着你继续向前。\n(状态反馈：无)",
+    bg: "evt_shelter_cave",
+    choices: [{ text: "继续赶路", target: "resume" }],
+  },
 };
 
 export const randomEventIds = [
@@ -480,4 +637,6 @@ export const randomEventIds = [
   "evt_trail_angel",
   "evt_lightning",
   "evt_wild_boar",
+  "evt_thin_ice", // [NEW]
+  "evt_shelter_cave", // [NEW]
 ];

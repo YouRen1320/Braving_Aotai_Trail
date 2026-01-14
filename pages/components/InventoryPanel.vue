@@ -2,8 +2,14 @@
     <view class="inventory-overlay" v-if="visible" @click.self="close">
         <view class="panel">
             <!-- 标题栏 -->
+            <!-- 标题栏 -->
             <view class="header">
-                <text class="title">物资 & 装备</text>
+                <view class="header-left">
+                    <text class="title">物资</text>
+                    <text class="weight-info" :class="{ warning: isOverloaded }">
+                        ⚖️ {{ currentLoad }} / {{ maxLoad }} kg
+                    </text>
+                </view>
                 <view class="close-btn" @click="close">×</view>
             </view>
 
@@ -79,6 +85,10 @@ const gameStore = useGameStore();
 
 const inventory = computed(() => gameStore.inventory);
 const equipment = computed(() => gameStore.equipment);
+
+const currentLoad = computed(() => gameStore.currentLoad);
+const maxLoad = computed(() => gameStore.status.maxLoad);
+const isOverloaded = computed(() => currentLoad.value > maxLoad.value);
 
 const selectedType = ref('inv'); // 'inv' or 'equip'
 const selectedIndex = ref(-1); // index number for inv, slot string for equip
@@ -195,6 +205,26 @@ const handleAction = () => {
     color: #fff;
     font-size: 32rpx;
     font-weight: 600;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20rpx;
+}
+
+.weight-info {
+    font-size: 24rpx;
+    color: #888;
+    background: #333;
+    padding: 4rpx 12rpx;
+    border-radius: 8rpx;
+
+    &.warning {
+        color: #ff3b30;
+        background: rgba(255, 59, 48, 0.1);
+        border: 1rpx solid #ff3b30;
+    }
 }
 
 .close-btn {

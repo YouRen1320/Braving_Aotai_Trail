@@ -3,39 +3,28 @@
         <!-- 背景 -->
         <image class="bg-image" src="@/static/images/loc_nav_stand.png" mode="aspectFill" />
         <view class="overlay"></view>
-        <view class="scan-line"></view>
+        <view class="Vignette"></view>
 
         <!-- 标题 -->
         <view class="header">
-            <text class="top-tag">CLASSIFIED // EYES ONLY</text>
-            <text class="title">档案选择</text>
-            <text class="subtitle">SELECT PERSONNEL FOR DEPLOYMENT</text>
+            <text class="title">身份抉择</text>
+            <text class="subtitle">Who are you?</text>
         </view>
 
         <!-- 角色卡片轮播 -->
-        <swiper class="role-swiper" :current="currentIndex" @change="onSwiperChange" previous-margin="40rpx"
-            next-margin="40rpx">
+        <swiper class="role-swiper" :current="currentIndex" @change="onSwiperChange" previous-margin="50rpx"
+            next-margin="50rpx">
             <swiper-item v-for="(role, index) in roles" :key="role.id" class="swiper-item">
                 <view class="role-card" :class="{ 'active': index === currentIndex }">
-                    <!-- 装饰性角标 -->
-                    <view class="card-corner top-left"></view>
-                    <view class="card-corner top-right"></view>
-                    <view class="card-corner bottom-left"></view>
-                    <view class="card-corner bottom-right"></view>
-
                     <view class="role-header">
                         <view class="avatar-box">
                             <text class="avatar">{{ role.avatar }}</text>
                         </view>
                         <view class="role-info">
-                            <text class="code-name">CODE: {{ role.id.toUpperCase() }}</text>
                             <text class="role-name">{{ role.name }}</text>
-                            <text class="role-title">// {{ role.title }}</text>
+                            <text class="role-title">{{ role.title }}</text>
                         </view>
                     </view>
-
-                    <!-- CSS Stamp for both states, easier to manage -->
-                    <view class="css-stamp" :class="{ 'stamp-active': index === currentIndex }">CONFIDENTIAL</view>
 
                     <view class="divider-line"></view>
 
@@ -45,31 +34,37 @@
 
                     <view class="stats-panel">
                         <view class="stat-row">
-                            <text class="label">体能 (HP)</text>
-                            <view class="segment-bar">
-                                <view v-for="n in 10" :key="n" class="segment"
-                                    :class="{ 'filled': n <= (role.stats.maxHp / 10), 'hp': true }"></view>
+                            <text class="label">体能</text>
+                            <view class="progress-bg">
+                                <view class="progress-fill hp" :style="{ width: (role.stats.maxHp / 150 * 100) + '%' }">
+                                </view>
                             </view>
                             <text class="value">{{ role.stats.maxHp }}</text>
                         </view>
                         <view class="stat-row">
-                            <text class="label">意志 (SAN)</text>
-                            <view class="segment-bar">
-                                <view v-for="n in 10" :key="n" class="segment"
-                                    :class="{ 'filled': n <= (role.stats.maxSanity / 10), 'sanity': true }"></view>
+                            <text class="label">意志</text>
+                            <view class="progress-bg">
+                                <view class="progress-fill sanity"
+                                    :style="{ width: (role.stats.maxSanity / 150 * 100) + '%' }"></view>
                             </view>
                             <text class="value">{{ role.stats.maxSanity }}</text>
                         </view>
                     </view>
 
                     <view class="equipment-box">
-                        <text class="section-title"> > INITIAL_LOADOUT</text>
+                        <text class="section-title">初始装备</text>
                         <view class="items-grid">
                             <view v-for="item in getRoleItemNames(role)" :key="item" class="item-chip">
-                                <text class="chip-icon">📦</text>
                                 <text class="chip-text">{{ item }}</text>
                             </view>
                         </view>
+                    </view>
+
+                    <!-- Locked Overlay -->
+                    <view class="locked-overlay" v-if="role.locked && !isRoleUnlocked(role.id)">
+                        <text class="lock-icon">🔒</text>
+                        <text class="lock-text">未解锁</text>
+                        <text class="lock-condition">{{ role.unlockCondition }}</text>
                     </view>
                 </view>
             </swiper-item>
@@ -77,19 +72,15 @@
 
         <!-- 确认按钮 -->
         <view class="footer">
-            <view class="btn-deploy" @click="confirmSelection">
-                <view class="btn-content">
-                    <text class="btn-text">签署生死状 // DEPLOY</text>
-                </view>
-                <view class="btn-glitch"></view>
-            </view>
+            <button class="btn-start" @click="confirmSelection" :disabled="isLocked(currentRole)">
+                <text class="btn-text" v-if="!isLocked(currentRole)">踏入荒野</text>
+                <text class="btn-text" v-else>无法选择</text>
+            </button>
         </view>
+
         <!-- 全屏转场遮罩 -->
         <view class="transition-overlay" v-if="isTransitioning">
             <text class="transition-text">正在前往登山口...</text>
-            <view class="loading-bar">
-                <view class="loading-progress"></view>
-            </view>
         </view>
     </view>
 </template>
@@ -100,17 +91,21 @@ import { onShow } from '@dcloudio/uni-app';
 import { roles } from '@/utils/data/roles_data';
 import { items } from '@/utils/data/items_data';
 import { useGameStore } from '@/stores/game';
+import { useMetaStore } from '@/stores/meta'; // Ensure meta store is used for unlocks
 
 const gameStore = useGameStore();
+const metaStore = useMetaStore();
 
 const currentIndex = ref(0);
-const isTransitioning = ref(false); // [NEW] Transition state
+const isTransitioning = ref(false);
 const currentRole = computed(() => roles[currentIndex.value]);
 
 onMounted(() => {
-    // Randomize initial character on mount
+    metaStore.loadMeta();
     if (roles.length > 0) {
-        currentIndex.value = Math.floor(Math.random() * roles.length);
+        // Find first unlocked role or default to 0
+        const firstUnlocked = roles.findIndex(r => !r.locked || metaStore.isRoleUnlocked(r.id));
+        currentIndex.value = firstUnlocked >= 0 ? firstUnlocked : 0;
     }
 });
 
@@ -126,17 +121,30 @@ const getRoleItemNames = (role) => {
     return role.items.map(id => items[id] ? items[id].name : '未知物品');
 }
 
-const confirmSelection = () => {
-    try {
-        if (isTransitioning.value) return; // Prevent double click
+const isRoleUnlocked = (roleId) => {
+    // Check if role is inherently locked and if player has unlocked it
+    const role = roles.find(r => r.id === roleId);
+    if (!role.locked) return true;
+    return metaStore.unlockedRoles.includes(roleId);
+};
 
+const isLocked = (role) => {
+    return role.locked && !isRoleUnlocked(role.id);
+};
+
+const confirmSelection = () => {
+    if (isTransitioning.value) return;
+    if (isLocked(currentRole.value)) {
+        uni.showToast({ title: '该角色尚未解锁', icon: 'none' });
+        return;
+    }
+
+    try {
         const roleId = currentRole.value.id;
         gameStore.initGame(roleId);
 
-        // Start Transition
         isTransitioning.value = true;
 
-        // Navigate after animation
         setTimeout(() => {
             uni.navigateTo({
                 url: '/pages/game_page',
@@ -145,100 +153,75 @@ const confirmSelection = () => {
                     isTransitioning.value = false;
                 }
             });
-        }, 2000); // 2 seconds for the cinematic feel
+        }, 1500);
     } catch (e) {
         console.error('Error in confirmSelection:', e);
-        uni.showToast({ title: 'Error: ' + e.message, icon: 'none' });
     }
 };
 </script>
 
 <style lang="scss" scoped>
-/* 引入等宽字体 (如果系统支持) */
-@font-face {
-    font-family: 'TechMono';
-    src: local('Courier New'), local('Menlo'); // Fallback
-}
-
 .container {
     width: 100%;
     height: 100vh;
-    background: #050505;
+    background: #1a1a1a;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
-    font-family: 'TechMono', monospace;
+    font-family: sans-serif;
 }
 
 .bg-image {
     position: absolute;
     width: 100%;
     height: 100%;
-    opacity: 0.3;
-    filter: grayscale(100%) contrast(1.2) blur(2px);
+    opacity: 0.4;
+    filter: grayscale(100%);
 }
 
 .overlay {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, transparent 0%, #000 90%);
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0) 0%, #000 100%);
     pointer-events: none;
 }
 
-.scan-line {
+.Vignette {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    animation: scan 3s linear infinite;
-    pointer-events: none;
-    z-index: 5;
-}
-
-@keyframes scan {
-    0% {
-        top: -10%;
-    }
-
-    100% {
-        top: 110%;
-    }
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
 }
 
 .header {
     position: relative;
     z-index: 10;
-    padding-top: 120rpx;
+    padding-top: 140rpx;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 20rpx;
 }
 
-.top-tag {
-    font-size: 20rpx;
-    color: #ff3333;
-    letter-spacing: 4rpx;
-    margin-bottom: 10rpx;
-    border: 1px solid #ff3333;
-    padding: 2rpx 8rpx;
-}
-
 .title {
-    color: #e0e0e0;
-    font-size: 56rpx;
-    font-weight: 900;
-    letter-spacing: 8rpx;
-    text-shadow: 0 0 10rpx rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 50rpx;
+    font-weight: 700;
+    letter-spacing: 4rpx;
+    margin-bottom: 8rpx;
+    text-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.5);
 }
 
 .subtitle {
-    font-size: 20rpx;
-    color: #666;
+    font-size: 24rpx;
+    color: #aaa;
     letter-spacing: 2rpx;
-    margin-top: 10rpx;
+    text-transform: uppercase;
 }
 
 .role-swiper {
@@ -246,7 +229,8 @@ const confirmSelection = () => {
     z-index: 10;
     flex: 1;
     width: 100%;
-    padding-top: 40rpx;
+    padding-top: 20rpx;
+    min-height: 0;
 }
 
 .swiper-item {
@@ -254,321 +238,249 @@ const confirmSelection = () => {
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
+    padding-bottom: 20rpx;
 }
 
 .role-card {
     width: 90%;
-    height: 85%;
-    background: #111;
-    border: 1px solid #333;
+    height: 100%;
+    max-height: 96%;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12rpx;
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: 40rpx;
+    padding: 30rpx;
     box-sizing: border-box;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.4s ease;
     transform: scale(0.92);
-    opacity: 0.5;
-    box-shadow: 0 0 20rpx rgba(0, 0, 0, 0.8);
+    opacity: 0.7;
+    box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.5);
+    color: #333;
 
     &.active {
         transform: scale(1);
         opacity: 1;
-        border-color: #f0f0f0;
-        background: #1a1a1a;
-        box-shadow: 0 0 40rpx rgba(0, 0, 0, 0.9);
-
-        .css-stamp {
-            &.stamp-active {
-                opacity: 1;
-                transform: translate(-50%, -50%) rotate(-15deg) scale(1.1);
-            }
-        }
+        background: #fff;
+        box-shadow: 0 20rpx 50rpx rgba(0, 0, 0, 0.6);
     }
-}
-
-/* 装饰角标 */
-.card-corner {
-    position: absolute;
-    width: 20rpx;
-    height: 20rpx;
-    border-color: #fff;
-    border-style: solid;
-    border-width: 0;
-    transition: all 0.3s;
-}
-
-.top-left {
-    top: -2px;
-    left: -2px;
-    border-top-width: 2px;
-    border-left-width: 2px;
-}
-
-.top-right {
-    top: -2px;
-    right: -2px;
-    border-top-width: 2px;
-    border-right-width: 2px;
-}
-
-.bottom-left {
-    bottom: -2px;
-    left: -2px;
-    border-bottom-width: 2px;
-    border-left-width: 2px;
-}
-
-.bottom-right {
-    bottom: -2px;
-    right: -2px;
-    border-bottom-width: 2px;
-    border-right-width: 2px;
 }
 
 .role-header {
     display: flex;
-    gap: 30rpx;
-    margin-bottom: 30rpx;
+    gap: 24rpx;
+    margin-bottom: 20rpx;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .avatar-box {
-    width: 140rpx;
-    height: 140rpx;
-    background: #222;
-    border: 1px solid #444;
+    width: 100rpx;
+    height: 100rpx;
+    background: #f0f0f0;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: inset 0 0 10rpx rgba(0, 0, 0, 0.1);
 }
 
 .avatar {
-    font-size: 80rpx;
+    font-size: 50rpx;
 }
 
 .role-info {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-}
-
-.code-name {
-    font-size: 20rpx;
-    color: #666;
-    margin-bottom: 4rpx;
 }
 
 .role-name {
-    font-size: 48rpx;
-    color: #fff;
-    font-weight: 700;
-    letter-spacing: 2rpx;
+    font-size: 36rpx;
+    color: #000;
+    font-weight: 800;
+    margin-bottom: 4rpx;
 }
 
 .role-title {
-    font-size: 24rpx;
-    color: #ffcc00;
-    /* Tactical Yellow */
-}
-
-.css-stamp {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-15deg);
-    font-size: 60rpx;
-    font-weight: 900;
-    color: #ff3333;
-    border: 6rpx solid #ff3333;
-    padding: 10rpx 20rpx;
-    opacity: 0;
-    pointer-events: none;
-    letter-spacing: 10rpx;
-    transition: opacity 0.5s;
-    z-index: 0;
+    font-size: 22rpx;
+    color: #666;
+    font-style: italic;
 }
 
 .divider-line {
     width: 100%;
-    height: 1px;
-    background: repeating-linear-gradient(90deg, #444 0, #444 10px, transparent 10px, transparent 20px);
-    margin-bottom: 30rpx;
+    height: 2rpx;
+    background: #e0e0e0;
+    margin-bottom: 20rpx;
+    flex-shrink: 0;
 }
 
 .desc-box {
     flex: 1;
-    margin-bottom: 30rpx;
+    height: 0;
+    margin-bottom: 20rpx;
+    background: #fdfdfd;
+    padding: 16rpx;
+    border-radius: 8rpx;
+    border: 1px dashed #ddd;
+    box-sizing: border-box;
 }
 
 .role-desc {
     font-size: 26rpx;
-    color: #aaa;
+    color: #444;
     line-height: 1.5;
+    font-family: serif;
 }
 
 .stats-panel {
-    background: #0f0f0f;
-    padding: 20rpx;
-    border: 1px solid #333;
-    margin-bottom: 30rpx;
+    margin-bottom: 20rpx;
+    flex-shrink: 0;
 }
 
 .stat-row {
     display: flex;
     align-items: center;
     margin-bottom: 16rpx;
-
-    &:last-child {
-        margin-bottom: 0;
-    }
 }
 
 .label {
-    width: 140rpx;
+    width: 100rpx;
     font-size: 24rpx;
-    color: #888;
+    color: #666;
+    font-weight: 600;
 }
 
-.segment-bar {
+.progress-bg {
     flex: 1;
-    display: flex;
-    gap: 4rpx;
+    height: 12rpx;
+    background: #eee;
+    border-radius: 6rpx;
+    overflow: hidden;
+    margin: 0 20rpx;
 }
 
-.segment {
-    flex: 1;
-    height: 16rpx;
-    background: #222;
-    transform: skewX(-20deg);
+.progress-fill {
+    height: 100%;
+    border-radius: 6rpx;
 
-    &.filled {
-        &.hp {
-            background: #ff4757;
-        }
+    &.hp {
+        background: #ff6b6b;
+    }
 
-        &.sanity {
-            background: #5352ed;
-        }
-
-        box-shadow: 0 0 10rpx rgba(255, 255, 255, 0.2);
+    &.sanity {
+        background: #4dabf7;
     }
 }
 
 .value {
-    width: 60rpx;
-    text-align: right;
-    color: #fff;
+    width: 50rpx;
     font-size: 24rpx;
+    color: #333;
+    text-align: right;
+    font-weight: 700;
 }
 
-.equipment-box {
-    border-top: 1px solid #333;
-    padding-top: 20rpx;
-}
+.equipment-box {}
 
 .section-title {
     font-size: 20rpx;
-    color: #666;
-    margin-bottom: 16rpx;
+    color: #888;
+    margin-bottom: 12rpx;
     display: block;
+    text-transform: uppercase;
+    font-weight: 700;
 }
 
 .items-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 16rpx;
+    gap: 12rpx;
 }
 
 .item-chip {
-    background: #222;
-    border: 1px solid #444;
-    padding: 8rpx 16rpx;
-    display: flex;
-    align-items: center;
-    gap: 10rpx;
-}
-
-.chip-icon {
-    font-size: 24rpx;
+    background: #f5f5f5;
+    padding: 6rpx 16rpx;
+    border-radius: 30rpx;
+    border: 1px solid #e0e0e0;
 }
 
 .chip-text {
     font-size: 22rpx;
-    color: #ccc;
+    color: #555;
+    font-weight: 500;
 }
 
 .footer {
-    padding: 0 0 80rpx;
+    padding: 30rpx 0 60rpx;
     display: flex;
     justify-content: center;
+    z-index: 10;
+    flex-shrink: 0;
 }
 
-.btn-deploy {
-    background: #ff3333;
-    color: #000;
-    padding: 2rpx;
-    /* Thin border */
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.1s;
+.btn-start {
+    width: 60%;
+    height: 90rpx;
+    background: #111;
+    color: #fff;
+    border-radius: 45rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30rpx;
+    font-weight: 700;
+    box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.3);
+    border: none;
+    transition: all 0.2s;
 
     &:active {
         transform: scale(0.98);
-        filter: brightness(1.2);
+    }
+
+    &[disabled] {
+        background: #555;
+        opacity: 0.7;
     }
 }
 
-.btn-content {
-    background: #000;
-    color: #ff3333;
-    padding: 24rpx 60rpx;
-    border: 2px solid #ff3333;
-    /* Inner border */
-    font-weight: 900;
-    font-size: 32rpx;
-    letter-spacing: 4rpx;
-    text-transform: uppercase;
-    position: relative;
-    z-index: 2;
-
-    &:hover {
-        background: #ff3333;
-        color: #000;
-    }
-}
-
-.btn-glitch {
+.locked-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 51, 51, 0.5);
-    transform: translateX(-100%);
-    z-index: 1;
-    pointer-events: none;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    border-radius: 12rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    color: #fff;
 }
 
-.btn-deploy:active .btn-glitch {
-    animation: glitch-slide 0.2s linear;
+.lock-icon {
+    font-size: 60rpx;
+    margin-bottom: 20rpx;
 }
 
-@keyframes glitch-slide {
-    0% {
-        transform: translateX(-100%);
-    }
-
-    50% {
-        transform: translateX(0);
-    }
-
-    100% {
-        transform: translateX(100%);
-    }
+.lock-text {
+    font-size: 32rpx;
+    font-weight: 700;
+    margin-bottom: 10rpx;
 }
 
-/* Transition Overlay Styles */
+.lock-condition {
+    font-size: 24rpx;
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8rpx 20rpx;
+    border-radius: 30rpx;
+}
+
 .transition-overlay {
     position: fixed;
     top: 0;
@@ -578,7 +490,6 @@ const confirmSelection = () => {
     background: #000;
     z-index: 9999;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.5s ease-out;
@@ -586,31 +497,9 @@ const confirmSelection = () => {
 
 .transition-text {
     color: #fff;
-    font-size: 40rpx;
-    /* Larger text */
-    letter-spacing: 8rpx;
-    margin-bottom: 60rpx;
-    font-weight: 700;
-    animation: pulseText 2s infinite;
-}
-
-.loading-bar {
-    width: 400rpx;
-    height: 4rpx;
-    background: #333;
-    position: relative;
-    overflow: hidden;
-}
-
-.loading-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background: #fff;
-    transform: translateX(-100%);
-    animation: loadingSlide 2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    font-size: 32rpx;
+    letter-spacing: 4rpx;
+    opacity: 0.8;
 }
 
 @keyframes fadeIn {
@@ -620,29 +509,6 @@ const confirmSelection = () => {
 
     to {
         opacity: 1;
-    }
-}
-
-@keyframes pulseText {
-
-    0%,
-    100% {
-        opacity: 0.8;
-    }
-
-    50% {
-        opacity: 1;
-        text-shadow: 0 0 20rpx rgba(255, 255, 255, 0.5);
-    }
-}
-
-@keyframes loadingSlide {
-    0% {
-        transform: translateX(-100%);
-    }
-
-    100% {
-        transform: translateX(0);
     }
 }
 </style>

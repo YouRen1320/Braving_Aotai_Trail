@@ -56,6 +56,12 @@
                     <text class="btn-text-secondary">继续徒步</text>
                 </view>
 
+                <!-- 结局图鉴按钮 [NEW] -->
+                <view class="btn btn-secondary" @click="handleGallery">
+                    <text class="btn-icon-secondary">🏆</text>
+                    <text class="btn-text-secondary">结局图鉴</text>
+                </view>
+
                 <!-- 关于游戏按钮 - 文字按钮 -->
                 <view class="btn btn-text-link" @click="handleAbout">
                     <text class="btn-icon-link">ℹ</text>
@@ -143,6 +149,10 @@ const handleContinueHike = () => {
         uni.showToast({ title: '存档丢失或损坏', icon: 'none' });
         hasSave.value = false;
     }
+};
+
+const handleGallery = () => {
+    uni.navigateTo({ url: '/pages/gallery_page' });
 };
 
 const handleAbout = () => {
@@ -297,19 +307,19 @@ const confirmReset = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 80rpx;
+    margin-bottom: 60rpx; // Reduced from 80
 }
 
 .main-title {
-    font-size: 96rpx;
+    font-size: 84rpx; // Reduced from 96
     font-weight: 800;
     color: #ffffff;
-    letter-spacing: 16rpx;
+    letter-spacing: 12rpx; // Reduced spacing
     text-shadow:
         0 4rpx 10rpx rgba(0, 0, 0, 0.3),
         0 10rpx 40rpx rgba(0, 0, 0, 0.5),
         0 0 80rpx rgba(100, 200, 255, 0.3);
-    margin-bottom: 40rpx;
+    margin-bottom: 30rpx; // Reduced from 40
     background: linear-gradient(180deg, #ffffff 30%, #e0e6ed 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -320,21 +330,21 @@ const confirmReset = () => {
 .subtitle-wrap {
     display: flex;
     align-items: center;
-    gap: 32rpx;
-    margin-bottom: 60rpx;
+    gap: 24rpx;
+    margin-bottom: 40rpx; // Reduced from 60
     opacity: 0.9;
 }
 
 .divider-line {
-    width: 80rpx;
+    width: 60rpx; // Reduced length
     height: 1rpx;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
 }
 
 .subtitle {
-    font-size: 28rpx;
+    font-size: 26rpx;
     color: rgba(220, 230, 240, 0.9);
-    letter-spacing: 16rpx;
+    letter-spacing: 12rpx;
     font-weight: 300;
     text-transform: uppercase;
     text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
@@ -344,15 +354,15 @@ const confirmReset = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8rpx;
+    gap: 6rpx;
 }
 
 .quote {
-    font-size: 28rpx;
+    font-size: 26rpx; // Slightly smaller
     color: rgba(255, 255, 255, 0.6);
     font-style: italic;
-    letter-spacing: 4rpx;
-    line-height: 1.6;
+    letter-spacing: 3rpx;
+    line-height: 1.5;
 }
 
 /* 按钮组 */
@@ -360,7 +370,7 @@ const confirmReset = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40rpx;
+    gap: 32rpx; // Reduced from 40
     width: 100%;
     max-width: 520rpx;
 }
@@ -371,8 +381,7 @@ const confirmReset = () => {
     justify-content: center;
     gap: 16rpx;
     width: 100%;
-    height: 116rpx;
-    /* Fixed height for consistency */
+    height: 100rpx; // Reduced from 116
     transition: all 0.2s ease;
 
     &:active {
@@ -389,7 +398,7 @@ const confirmReset = () => {
     backdrop-filter: blur(20rpx);
     -webkit-backdrop-filter: blur(20rpx);
     border: 1rpx solid rgba(255, 255, 255, 0.3);
-    border-radius: 60rpx;
+    border-radius: 50rpx; // Adjusted for new height
     /* 增加一点内发光 */
     box-shadow:
         0 8rpx 32rpx rgba(0, 0, 0, 0.3),
@@ -418,10 +427,10 @@ const confirmReset = () => {
 }
 
 .btn-text-primary {
-    font-size: 34rpx;
+    font-size: 32rpx; // Slightly smaller
     font-weight: 600;
     color: #ffffff;
-    letter-spacing: 10rpx;
+    letter-spacing: 8rpx;
     text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.2);
 }
 
@@ -432,7 +441,7 @@ const confirmReset = () => {
     backdrop-filter: blur(10rpx);
     -webkit-backdrop-filter: blur(10rpx);
     border: 1rpx solid rgba(255, 255, 255, 0.1);
-    border-radius: 60rpx;
+    border-radius: 50rpx; // Adjusted
 
     &:hover {
         background: rgba(0, 0, 0, 0.35);
@@ -447,22 +456,22 @@ const confirmReset = () => {
 }
 
 .btn-icon-secondary {
-    font-size: 32rpx;
+    font-size: 30rpx;
     color: rgba(255, 255, 255, 0.7);
 }
 
 .btn-text-secondary {
-    font-size: 34rpx;
+    font-size: 32rpx;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.8);
-    letter-spacing: 8rpx;
+    letter-spacing: 6rpx;
 }
 
 /* 文字链接按钮 */
 .btn-text-link {
     padding: 20rpx 40rpx;
     background: transparent;
-    margin-top: 10rpx;
+    margin-top: 0; // Removed margin
     transition: all 0.3s ease;
 
     &:hover {
@@ -476,12 +485,12 @@ const confirmReset = () => {
 }
 
 .btn-icon-link {
-    font-size: 28rpx;
+    font-size: 26rpx;
     color: rgba(255, 255, 255, 0.5);
 }
 
 .btn-text-link-text {
-    font-size: 28rpx;
+    font-size: 26rpx;
     color: rgba(255, 255, 255, 0.5);
     letter-spacing: 4rpx;
     text-decoration: underline;
@@ -490,7 +499,9 @@ const confirmReset = () => {
 
 /* 底部警示语 */
 .footer-warning {
-    bottom: 60rpx;
+    position: absolute; // Ensure it stays at bottom
+    bottom: 40rpx;
+    padding-bottom: env(safe-area-inset-bottom); // Handle iPhone X+ bottom bar
     left: 0;
     right: 0;
     display: flex;
@@ -498,7 +509,7 @@ const confirmReset = () => {
 }
 
 .warning-text {
-    font-size: 22rpx;
+    font-size: 20rpx;
     color: rgba(255, 180, 180, 0.6);
     letter-spacing: 2rpx;
 }

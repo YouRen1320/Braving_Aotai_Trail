@@ -42,12 +42,15 @@ class AudioManager {
         src = "/static/audio/Ambient.wav";
         break;
       default:
-        src = "";
+        src = "/static/audio/Ambient.wav"; // Default fallback
     }
 
     if (src) {
-      this.bgmContext.src = src;
-      this.bgmContext.play();
+      if (this.bgmContext.src !== src) {
+        // Only change if src is different
+        this.bgmContext.src = src;
+        this.bgmContext.play();
+      }
       this.currentBgm = type;
     } else {
       this.bgmContext.stop();
@@ -60,7 +63,6 @@ class AudioManager {
     if (this.isMusicOn) {
       // Resume logic: if we have a current BGM type (or default to one), play it
       if (this.currentBgm) {
-        // Force replay smoothly
         const type = this.currentBgm as any;
         this.currentBgm = null; // Reset to force playBGM to act
         this.playBGM(type);
@@ -71,23 +73,29 @@ class AudioManager {
     return this.isMusicOn;
   }
 
-  playSFX(type: "heartbeat" | "scream" | "step") {
+  playSFX(type: "heartbeat" | "scream" | "step" | "ice_crack") {
     let src = "";
     switch (type) {
       case "heartbeat":
-        // src = "/static/audio/sfx_heartbeat.mp3"; // Missing
+        // src = "/static/audio/sfx_heartbeat.mp3";
         break;
       case "scream":
-        // src = "/static/audio/sfx_scream.mp3"; // Missing
+        // src = "/static/audio/sfx_scream.mp3";
         break;
       case "step":
-        // src = "/static/audio/sfx_step.mp3"; // Missing
+        // src = "/static/audio/sfx_step.mp3";
+        break;
+      case "ice_crack":
+        // src = "/static/audio/sfx_ice_crack.mp3";
         break;
     }
 
     if (src) {
       this.sfxContext.src = src;
       this.sfxContext.play();
+      console.log(`[Audio] Playing SFX: ${type}`);
+    } else {
+      console.log(`[Audio] SFX placeholder triggered: ${type}`);
     }
   }
 

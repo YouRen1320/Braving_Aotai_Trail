@@ -28,6 +28,20 @@
             </view>
         </view>
 
+        <!-- 最近探险 [NEW] -->
+        <text class="section-title">最近探险</text>
+        <view class="history-list">
+            <view v-if="runHistory.length === 0" class="empty-tip">暂无探险记录</view>
+            <view v-for="(run, idx) in runHistory" :key="idx" class="history-item">
+                <text class="date">{{ formatDate(run.date) }}</text>
+                <view class="details">
+                    <text class="role">{{ run.roleName }}</text>
+                    <text class="days">生存 {{ run.days }} 天</text>
+                </view>
+                <text class="result">{{ run.endName }}</text>
+            </view>
+        </view>
+
         <button class="back-btn" @click="goBack">返回首页</button>
     </view>
 </template>
@@ -44,8 +58,15 @@ onMounted(() => {
 
 const runCount = computed(() => metaStore.runCount);
 const unlockedCount = computed(() => metaStore.totalEndingsUnlocked);
+const runHistory = computed(() => metaStore.runHistory); // [NEW]
 
 const isUnlocked = (id) => metaStore.isEndingUnlocked(id);
+
+const formatDate = (isoStr) => {
+    if (!isoStr) return "-";
+    const date = new Date(isoStr);
+    return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+};
 
 const goBack = () => {
     uni.navigateBack();
@@ -73,6 +94,7 @@ const endings = [
     padding: 40rpx;
     color: #fff;
     box-sizing: border-box;
+    padding-bottom: 80rpx;
 }
 
 .header {
@@ -124,6 +146,7 @@ const endings = [
     display: block;
     border-left: 8rpx solid #ffcc00;
     padding-left: 20rpx;
+    margin-top: 40rpx;
 }
 
 .endings-grid {
@@ -168,6 +191,63 @@ const endings = [
     .desc {
         font-size: 20rpx;
         color: #aaa;
+    }
+}
+
+/* [NEW] History Styles */
+.history-list {
+    background: #2a2a2a;
+    border-radius: 12rpx;
+    padding: 20rpx;
+
+    .empty-tip {
+        text-align: center;
+        color: #666;
+        padding: 20rpx;
+        font-size: 24rpx;
+    }
+
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20rpx 0;
+        border-bottom: 1rpx solid #444;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .date {
+            font-size: 22rpx;
+            color: #888;
+            width: 140rpx;
+        }
+
+        .details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin: 0 20rpx;
+
+            .role {
+                font-size: 28rpx;
+                color: #fff;
+                margin-bottom: 4rpx;
+            }
+
+            .days {
+                font-size: 22rpx;
+                color: #aaa;
+            }
+        }
+
+        .result {
+            font-size: 24rpx;
+            color: #ffcc00;
+            text-align: right;
+            max-width: 200rpx;
+        }
     }
 }
 

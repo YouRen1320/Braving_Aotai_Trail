@@ -15,7 +15,7 @@ import { roles, type Role } from "@/utils/data/roles_data"; // [NEW]
 declare const uni: any;
 
 // 定义 State 接口
-interface GameState {
+export interface GameState {
   gameState: "idle" | "playing" | "ended";
   currentSceneId: string;
   nextSceneId: string;
@@ -32,6 +32,7 @@ interface GameState {
     maxHp: number;
     maxHunger: number;
     maxSanity: number;
+    maxLoad: number; // [NEW]
     isNight: boolean;
   };
   inventory: Item[];
@@ -43,6 +44,7 @@ interface GameState {
   };
   weather: WeatherType;
   history: string[];
+  progress: number; // [NEW] Trip progress (0-100)
   worldFlags: {
     // [NEW] Randomized world state
     shuiwozi_water: boolean; // true = has water
@@ -74,6 +76,7 @@ export const useGameStore = defineStore("game", {
       maxHp: 100,
       maxHunger: 100,
       maxSanity: 100,
+      maxLoad: 20,
       isNight: false,
     },
 
@@ -93,34 +96,52 @@ export const useGameStore = defineStore("game", {
 
     // 历史记录 (用于回放或结算)
     history: [],
+    progress: 0, // [NEW]
 
     // 世界随机状态
     worldFlags: {
       shuiwozi_water: true, // Default, will be randomized in init
       liang2_blocked: false,
     },
+    notification: { visible: false, message: "", type: "normal" },
   }),
 
   getters: {
     currentScene: (state: GameState): Scene => {
       const scene = scenes[state.currentSceneId] || scenes["start_001"];
-      // [NEW] Dynamic Weather Text override
-      if (scene.weatherText && scene.weatherText[state.weather]) {
-        return {
-          ...scene,
-          text: scene.weatherText[state.weather],
-        };
+      let displayText = scene.text;
+
+      // 1. Role Text Override (Highest Priority)
+      if (
+        scene.roleText &&
+        state.player.roleId &&
+        scene.roleText[state.player.roleId]
+      ) {
+        displayText = scene.roleText[state.player.roleId];
       }
-      return scene;
+      // 2. Weather Text Override (Second Priority - ONLY if no role text was found, OR maybe composition?)
+      // For now, let's say Role Text > Weather Text > Default.
+      // Actually, Weather text is usually for "It's raining".
+      // Let's implement: Role Text OR (Weather Text OR Default)
+      else if (scene.weatherText && scene.weatherText[state.weather]) {
+        displayText = scene.weatherText[state.weather];
+      }
+
+      return {
+        ...scene,
+        text: displayText,
+      };
     },
     isAlive: (state: GameState): boolean =>
       state.status.hp > 0 && state.status.sanity > 0,
     currentWeatherInfo: (state: GameState) => weatherData[state.weather],
 
     // Helper to check if item exists
-    hasItem: (state: GameState) => (itemId: string) => {
-      return state.inventory.some((i) => i.id === itemId);
-    },
+    hasItem:
+      (state: GameState) =>
+      (itemId: string): boolean => {
+        return state.inventory.some((i) => i.id === itemId);
+      },
 
     // Vision Check
     hasVision: (state: GameState): boolean => {
@@ -147,6 +168,18 @@ export const useGameStore = defineStore("game", {
       if (!roleId) return [];
       const role = roles.find((r: Role) => r.id === roleId);
       return role ? role.traits : [];
+    },
+
+    // [NEW] Current Load
+    currentLoad: (state: GameState): number => {
+      let load = 0;
+      // Inventory
+      state.inventory.forEach((item) => (load += item.weight || 0));
+      // Equipment
+      Object.values(state.equipment).forEach((item) => {
+        if (item) load += item.weight || 0;
+      });
+      return parseFloat(load.toFixed(1));
     },
   },
 
@@ -176,13 +209,14 @@ export const useGameStore = defineStore("game", {
         maxHp: role.stats.maxHp,
         maxHunger: role.stats.maxHunger,
         maxSanity: role.stats.maxSanity,
+        maxLoad: role.traits.includes("strong_back") ? 30 : 20, // [TRAIT] Strong Back
         isNight: false,
       };
-
+      this.progress = 0; // [NEW] Reset progress
       this.inventory = [];
       this.equipment = { head: null, body: null, feet: null, hand: null };
       this.weather = "sunny";
-      this.history = [];
+      this.history = [`开始旅程: ${role.name}`];
 
       this.notification = { visible: false, message: "", type: "normal" }; // [NEW] Notification State
 
@@ -203,6 +237,9 @@ export const useGameStore = defineStore("game", {
       console.log("World Flags:", this.worldFlags);
 
       this.saveGame();
+      if (this.playerTraits.includes("strong_back")) {
+        this.showNotification("天赋[铁背]生效：最大负重+10kg", "success");
+      }
       console.log("Game Initialized with role:", role.name);
     },
 
@@ -291,6 +328,21 @@ export const useGameStore = defineStore("game", {
 
       this.equipment[slot] = item;
       this.showNotification(`装备: ${item.name}`, "success");
+      // [NEW] Tutorial: First Night Tip
+      if (
+        this.status.isNight &&
+        !useMetaStore().tutorialFlags.hasSeenNightTip
+      ) {
+        useMetaStore().markTutorialSeen("hasSeenNightTip");
+        uni.showModal({
+          title: "夜幕降临",
+          content:
+            "天黑后视野受限（探索成功率大幅下降）且气温骤降（失温风险剧增）。\n建议尽快寻找庇护所休息，或使用照明工具。",
+          showCancel: false,
+          confirmText: "我明白了",
+        });
+      }
+
       this.saveGame();
     },
 
@@ -306,7 +358,7 @@ export const useGameStore = defineStore("game", {
     },
 
     // 随机天气
-    randomizeWeather() {
+    randomizeWeather(this: any) {
       const rand = Math.random();
       if (rand < 0.4) this.weather = "sunny";
       else if (rand < 0.7) this.weather = "cloudy";
@@ -314,23 +366,17 @@ export const useGameStore = defineStore("game", {
       else if (rand < 0.95) this.weather = "snow";
       else this.weather = "storm";
 
-      if (["storm", "snow"].includes(this.weather)) {
-        audioManager.playBGM("wind");
-      } else {
-        audioManager.playBGM("sunny");
-      }
+      // [UPDATED] Dynamic BGM based on specific weather
+      audioManager.playBGM(this.weather as any);
 
       if (["storm", "snow"].includes(this.weather)) {
-        const weatherInfo = weatherData[this.weather];
+        const weatherInfo = weatherData[this.weather as WeatherType];
         this.showNotification(`警告: ${weatherInfo.name}`, "negative");
-        audioManager.playBGM("wind");
-      } else {
-        audioManager.playBGM("sunny");
       }
     },
 
     // 处理玩家选择
-    handleChoice(choice: SceneChoice) {
+    handleChoice(this: any, choice: SceneChoice) {
       this.history.push(`选择: ${choice.text}`);
 
       // 先扣费
@@ -405,13 +451,35 @@ export const useGameStore = defineStore("game", {
     },
 
     // 扣减数值
-    applyCost(cost: ChoiceCost) {
-      const weatherInfo = weatherData[this.weather];
+    applyCost(this: any, cost: ChoiceCost) {
+      const weatherInfo = weatherData[this.weather as WeatherType];
       const coeff = weatherInfo.costCoeff;
       const stats = this.totalStats;
 
       // 1. Hunger
       let hungerCost = (cost.hunger || 0) * coeff;
+
+      // [NEW] Overload Penalty
+      // [NEW] Tutorial: Overload Tip
+      if (
+        this.currentLoad > this.status.maxLoad &&
+        !useMetaStore().tutorialFlags.hasSeenOverloadTip
+      ) {
+        useMetaStore().markTutorialSeen("hasSeenOverloadTip");
+        uni.showModal({
+          title: "背负超重",
+          content: `你携带了过多的物品（${this.currentLoad.toFixed(1)} / ${
+            this.status.maxLoad
+          } kg）。\n超重会大幅增加体能消耗并降低移动速度。\n请丢弃不必要的物品或寻找更好的背包。`,
+          showCancel: false,
+          confirmText: "知道了",
+        });
+      }
+      if (this.currentLoad > this.status.maxLoad) {
+        const overload = this.currentLoad - this.status.maxLoad;
+        // 10% extra cost per kg overweight
+        hungerCost *= 1 + overload * 0.1;
+      }
 
       // [TRAIT] High Metabolism (Athlete)
       if (this.playerTraits.includes("high_metabolism")) {
@@ -495,7 +563,7 @@ export const useGameStore = defineStore("game", {
     },
 
     // 特殊动作处理
-    handleAction(action: string) {
+    handleAction(this: any, action: string) {
       switch (action) {
         case "restart":
           // Return to Home Page
@@ -598,11 +666,65 @@ export const useGameStore = defineStore("game", {
             this.status.maxSanity,
             this.status.sanity + 5
           );
-          this.status.sanity = Math.min(
-            this.status.maxSanity,
-            this.status.sanity + 5
-          );
           this.showNotification("回望来路，内心平静了一些 (理智+5)", "success");
+          break;
+        case "check_ice_risk":
+          // [NEW] Check Ice Risk based on Load
+          // Threshold: 15kg. Above this, risk increases significantly.
+          const load = this.currentLoad;
+          let failChance = 0.1; // Base risk 10%
+
+          if (load > 15) {
+            // +15% risk per kg over 15
+            failChance += (load - 15) * 0.15;
+          }
+
+          // Cap max risk at 90%
+          failChance = Math.min(0.9, failChance);
+
+          console.log(
+            `Ice crossing: Load ${load}kg, Fail Chance ${(
+              failChance * 100
+            ).toFixed(1)}%`
+          );
+
+          if (Math.random() < failChance) {
+            // Fail
+            this.status.hp -= 40;
+            this.status.sanity -= 20;
+            this.showNotification("冰面碎裂！落水重伤！", "negative");
+            audioManager.playSFX("ice_crack"); // [NEW] SFX
+            this.moveToScene("node_evt_ice_fail");
+          } else {
+            // Success
+            this.moveToScene("node_evt_ice_success");
+          }
+          break;
+        case "discard_heavy":
+          // [NEW] Discard Heaviest Item
+          if (this.inventory.length === 0) {
+            this.showNotification("背包里没有东西可扔！", "negative");
+            return;
+          }
+          // Find item with max weight
+          let heaviestIdx = -1;
+          let maxW = -1;
+          this.inventory.forEach((item: Item, idx: number) => {
+            if (item.weight > maxW) {
+              maxW = item.weight;
+              heaviestIdx = idx;
+            }
+          });
+
+          if (heaviestIdx !== -1) {
+            const item = this.inventory[heaviestIdx];
+            this.inventory.splice(heaviestIdx, 1);
+            this.showNotification(
+              `扔掉了：${item.name} (${item.weight}kg)`,
+              "normal"
+            );
+            this.moveToScene("node_evt_ice_discard_feedback");
+          }
           break;
         default:
           console.warn("Unknown action:", action);
@@ -610,19 +732,35 @@ export const useGameStore = defineStore("game", {
     },
 
     // 场景跳转
-    moveToScene(sceneId: string) {
+    moveToScene(this: any, sceneId: string) {
       if (scenes[sceneId]) {
         this.currentSceneId = sceneId;
+        console.log("Moved to scene:", sceneId);
         this.saveGame();
 
-        // [FIX] Success/Retreat endings now trigger Settlement Screen
+        // Check if it's an ending
         if (sceneId.startsWith("end_")) {
           const metaStore = useMetaStore();
           metaStore.unlockEnding(sceneId);
 
           this.gameState = "ended";
           this.history.push(`结局: ${sceneId}`); // Push key for panel to read
+
+          // [NEW] Record run
+          metaStore.addRun({
+            date: new Date().toISOString(),
+            roleName: roles[this.player.roleId]?.name || "未知",
+            days: this.player.days,
+            endingId: sceneId,
+            endName: scenes[sceneId]?.text.split("\n")[0] || "未知结局",
+          });
+
           console.log(`Ending reached: ${sceneId}`);
+        }
+
+        // [NEW] Update Progress
+        if (scenes[sceneId] && typeof scenes[sceneId].progress === "number") {
+          this.progress = scenes[sceneId].progress || 0;
         }
       } else {
         console.error(`Scene not found: ${sceneId}`);
@@ -630,7 +768,7 @@ export const useGameStore = defineStore("game", {
     },
 
     // 生存检查
-    checkSurvival(): boolean {
+    checkSurvival(this: any): boolean {
       if (this.status.hp <= 0) {
         this.die(this.status.hunger <= 0 ? "dead_starve" : "dead_cold");
         audioManager.stopBGM();
@@ -646,7 +784,7 @@ export const useGameStore = defineStore("game", {
     },
 
     // 死亡处理
-    die(endingKey: string) {
+    die(this: any, endingKey: string) {
       this.gameState = "ended";
       this.currentSceneId = "dead_001";
       this.history.push(`结局: ${endingKey}`);
@@ -655,12 +793,21 @@ export const useGameStore = defineStore("game", {
       const metaStore = useMetaStore();
       metaStore.unlockEnding(endingKey);
 
+      // [NEW] Record run
+      metaStore.addRun({
+        date: new Date().toISOString(),
+        roleName: roles[this.player.roleId]?.name || "未知",
+        days: this.player.days,
+        endingId: endingKey,
+        endName: scenes[endingKey]?.text.split("\n")[0] || "死亡结局",
+      });
+
       console.log(`Player died: ${endingKey}`);
     },
 
     // --- 持久化 ---
 
-    saveGame() {
+    saveGame(this: any) {
       try {
         const dataToSave = {
           gameState: this.gameState,
@@ -672,6 +819,7 @@ export const useGameStore = defineStore("game", {
           equipment: this.equipment,
           weather: this.weather,
           history: this.history,
+          progress: this.progress, // [NEW]
         };
         uni.setStorageSync("braving_aotai_save_v1", dataToSave);
       } catch (e) {
@@ -679,7 +827,7 @@ export const useGameStore = defineStore("game", {
       }
     },
 
-    loadGame(): boolean {
+    loadGame(this: any): boolean {
       try {
         const saved = uni.getStorageSync("braving_aotai_save_v1");
         if (saved && saved.currentSceneId) {
@@ -692,6 +840,7 @@ export const useGameStore = defineStore("game", {
           // Migration / Safety check for old saves
           if (this.status.sanity === undefined) this.status.sanity = 100;
           if (this.status.maxSanity === undefined) this.status.maxSanity = 100;
+          if (this.status.maxLoad === undefined) this.status.maxLoad = 20; // [NEW]
           if (this.status.isNight === undefined) this.status.isNight = false;
           if (this.player.roleId === undefined) this.player.roleId = "student"; // Default
 
@@ -704,6 +853,13 @@ export const useGameStore = defineStore("game", {
           };
           this.weather = saved.weather || "sunny";
           this.history = saved.history || [];
+          this.progress = saved.progress || 0; // [NEW]
+
+          // Load World Flags
+          this.worldFlags = saved.worldFlags || {
+            shuiwozi_water: true,
+            liang2_blocked: false,
+          };
 
           // [FIX] Ensure notification object exists for old saves
           if (!this.notification) {
@@ -725,7 +881,7 @@ export const useGameStore = defineStore("game", {
       return false;
     },
 
-    clearSave() {
+    clearSave(this: any) {
       try {
         uni.removeStorageSync("braving_aotai_save_v1");
       } catch (e) {}
