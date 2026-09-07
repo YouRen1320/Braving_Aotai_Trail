@@ -1,5 +1,8 @@
 # 勇闯鳌太线 🏔️
 
+> [!IMPORTANT]
+> **历史 UniApp 版本，已停止维护。** 本仓库保留《勇闯鳌太线》早期跨端实现、剧情与素材演进记录，其中包含旧构建产物和依赖目录，不建议作为新项目模板。当前维护入口为原生微信小程序版 [cyber-hiking](https://github.com/YouRen1320/cyber-hiking)。
+
 <div align="center">
 
 ![UniApp](https://img.shields.io/badge/UniApp-Vue3-green?style=flat-square&logo=vue.js)
